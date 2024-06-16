@@ -1,0 +1,16 @@
+world <width: int> <height: int> '.' <alphabet-size: int> '.' '#' ...
+rules <ruleName: Rule (far only CountRule)>
+    state 'x' to 'y' if
+        'a' may 1 2 ...
+        'b' mayall 3 5 ...  // equal "may 0 1 2 4 6 7 8"
+        ...
+    end
+    ...
+end
+setup
+    cell  '.' <x: int> <y: int>
+    linex '.' <x0: int> <y: int> <x1: int>
+    liney '.' <x: int> <y0: int> <y1: int>
+    rect  '.' <x: int> <y: int> <width: int> <height: int>
+    pattern <x: int> <y: int> <width: int> <height: int> '.' ... width*height ... '.'
+end

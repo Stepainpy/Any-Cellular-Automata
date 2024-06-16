@@ -1,0 +1,33 @@
+complete_world = world_stmt, rules_stmt, setup_stmt;
+
+(*                    width   height  fill    alsize  alchars ...*)
+world_stmt = "world", number, number, symbol, number, symbol, {symbol};
+
+rules_stmt = "rules", ("CountRule"), { state_stmt }, "end";
+state_stmt = "state", symbol, "to", symbol, "if", may_stmt, {may_stmt}, "end";
+may_stmt = symbol, ("may"|"mayall"), {number};
+
+setup_stmt = "setup", {command}, "end";
+command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd;
+
+(*                   char    x       y *)
+cell_cmd  = "cell",  symbol, number, number;
+(*                   char    x0      y       x1 *)
+linex_cmd = "linex", symbol, number, number, number;
+(*                   char    x       y0      y1 *)
+liney_cmd = "liney", symbol, number, number, number;
+(*                   char    x       y       width   height *)
+rect_cmd  = "rect",  symbol, number, number, number, number;
+(*                       x       y       width   height  chars (need width * height) *)
+pattern_cmd = "pattern", number, number, number, number, symbol, {symbol};
+
+symbol = "'", ["\\"], char, "'";
+number = digit, {digit};
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+char =
+" " | "!" | "\""| "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" |
+"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | ":" | ";" | "<" | "=" | ">" | "?" |
+"@" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" |
+"P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" | "[" | "\\"| "]" | "^" | "_" |
+"`" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" |
+"p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "{" | "|" | "}" | "~";

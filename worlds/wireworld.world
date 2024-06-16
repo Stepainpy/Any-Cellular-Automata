@@ -1,0 +1,31 @@
+world 80 29 '.' 4 '.' 'X' '@' '%'
+rules CountRule
+    state 'X' to '@' if '@' may 1 2 end
+    state '@' to '%' if
+        '.' mayall
+        'X' mayall
+        '@' mayall
+        '%' mayall
+    end
+    state '%' to 'X' if
+        '.' mayall
+        'X' mayall
+        '@' mayall
+        '%' mayall
+    end
+end
+setup
+    linex 'X' 5 10 75
+    linex 'X' 5 20 75
+    liney 'X' 4 11 19
+    liney 'X' 76 11 19
+
+    pattern 35 9 2 3
+        'X' 'X'
+        '.' 'X'
+        'X' 'X'
+
+    liney 'X' 40 10 20
+
+    cell '@' 5 10
+end
