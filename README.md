@@ -15,6 +15,7 @@ cmake --build build
 ``` console
 ./aca worlds/gol.world
 ```
+This program is console app
 
 ## TODO
 
