@@ -4,7 +4,7 @@ rules CountRule
         '#' may 3
     end
     state '#' to '.' if
-        '#' mayall 2 3
+        '#' nomay 2 3
     end
 end
 setup

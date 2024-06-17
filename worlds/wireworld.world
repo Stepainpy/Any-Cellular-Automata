@@ -2,16 +2,16 @@ world 80 29 '.' 4 '.' '*' '@' '-'
 rules CountRule
     state '*' to '@' if '@' may 1 2 end
     state '@' to '-' if
-        '.' mayall
-        '*' mayall
-        '@' mayall
-        '-' mayall
+        '.' nomay
+        '*' nomay
+        '@' nomay
+        '-' nomay
     end
     state '-' to '*' if
-        '.' mayall
-        '*' mayall
-        '@' mayall
-        '-' mayall
+        '.' nomay
+        '*' nomay
+        '@' nomay
+        '-' nomay
     end
 end
 setup

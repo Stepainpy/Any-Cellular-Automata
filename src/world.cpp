@@ -57,17 +57,17 @@ std::unique_ptr<CountRule> parseCountRuleState(std::list<Token>& lst) {
     while (needTokenCount(lst, 1, "if") && top(lst) != "end") {
         needTokenCount(lst, 3, "may");
         Token mayChar = pop(lst); mayChar.mustBe(Token::Symbol);
-        Token mayType = pop(lst); mayType.mustBe(Token::Phrase, {"may", "mayall"});
+        Token mayType = pop(lst); mayType.mustBe(Token::Phrase, {"may", "nomay"});
         Token maybeEnd = pop(lst);
-        bool isMayAll = mayType.dataToStr() == "mayall";
+        bool isNoMay = mayType.dataToStr() == "nomay";
 
         std::set<size_t> neighCnts;
-        if (isMayAll)
+        if (isNoMay)
             neighCnts = allMayNeighbors;
 
         while (maybeEnd.type == Token::Number) {
             size_t tmpNum = std::abs(std::get<int>(maybeEnd.data));
-            if (!isMayAll)
+            if (!isNoMay)
                 neighCnts.insert(tmpNum);
             else
                 neighCnts.extract(tmpNum);

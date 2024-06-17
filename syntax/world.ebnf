@@ -5,7 +5,7 @@ world_stmt = "world", number, number, symbol, number, symbol, {symbol};
 
 rules_stmt = "rules", ("CountRule"), { state_stmt }, "end";
 state_stmt = "state", symbol, "to", symbol, "if", may_stmt, {may_stmt}, "end";
-may_stmt = symbol, ("may"|"mayall"), {number};
+may_stmt = symbol, ("may"|"nomay"), {number};
 
 setup_stmt = "setup", {command}, "end";
 command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd;
