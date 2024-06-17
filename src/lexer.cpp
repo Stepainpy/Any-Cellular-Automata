@@ -12,21 +12,19 @@ Lexer::Lexer(const std::string& filePath) : m_file(filePath), m_globalLoc(1, 1, 
 }
 
 void Lexer::skip() {
-    while (std::isspace(m_file.peek())) {
+    while (std::isspace(m_file.peek()) || m_file.peek() == ';') {
         char c = m_file.get();
         switch (c) {
-            case ' ': case '\t': {
-                m_globalLoc.column++;
-            } break;
+            case ' ' : case '\t': m_globalLoc.column++; break;
+            case '\r': m_globalLoc.column = 1; break;
+            case '\v': m_globalLoc.line++; break;
             case '\n': {
                 m_globalLoc.line++;
                 m_globalLoc.column = 1;
             } break;
-            case '\r': {
-                m_globalLoc.column = 1;
-            } break;
-            case '\v': {
-                m_globalLoc.line++;
+            case ';': {
+                while (m_file.peek() != '\n')
+                    c = m_file.get();
             } break;
         }
     }

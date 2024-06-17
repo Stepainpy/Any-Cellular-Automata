@@ -1,13 +1,16 @@
-world 80 29 '.' 4 '.' '*' '@' '-'
+;                 none wire head tail
+world 80 29 '.' 4 '.'  '*'  '@'  '-'
 rules CountRule
-    state '*' to '@' if '@' may 1 2 end
-    state '@' to '-' if
+    state '*' to '@' if
+        '@' may 1 2
+    end
+    state '@' to '-' if ; head -> tail
         '.' nomay
         '*' nomay
         '@' nomay
         '-' nomay
     end
-    state '-' to '*' if
+    state '-' to '*' if ; tail -> wire
         '.' nomay
         '*' nomay
         '@' nomay
@@ -15,16 +18,19 @@ rules CountRule
     end
 end
 setup
+    ; wire border
     linex '*' 5 10 75
     linex '*' 5 20 75
     liney '*' 4 11 19
     liney '*' 76 11 19
 
+    ; diod
     pattern 35 9 2 3
         '*' '*'
         '.' '*'
         '*' '*'
 
+    ; between wire
     liney '*' 40 10 20
 
     cell '@' 5 10

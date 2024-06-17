@@ -15,9 +15,14 @@ cmake --build build
 ``` console
 ./aca worlds/gol.world
 ```
-This program is console app
+This is app run in console
+
+## World file syntax
+
+Words, numbers and symbols separated by spacing symbols (space, tab, new line and etc.).  
+Single line comment start by `;`. See the other syntax in the [EBNF](syntax/world.ebnf) and [example file](syntax/example.txt)
 
 ## TODO
 
 - [ ] Add pattern rule
-- [ ] Add comment in world file
+- [x] Add comments in world file
