@@ -1,0 +1,11 @@
+; Simple simulation of Belousov-Zhabotinsky reaction
+; wikipedia: https://en.wikipedia.org/wiki/Belousov–Zhabotinsky_reaction
+world 80 29 '.' 3 '.' '*' '@'
+rules CountRule
+    state '.' to '*' if '*' may 3 4 end
+    state '*' to '@' if '@' may 3 4 end
+    state '@' to '.' if '.' may 3 4 end
+end
+setup
+    random 0 0 80 29
+end
