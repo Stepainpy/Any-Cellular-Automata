@@ -1,9 +1,13 @@
 world <width: int> <height: int> '.' <alphabet-size: int> '.' '#' ...
-rules <ruleName: Rule (far only CountRule)>
+rules <ruleName: Rule (CountRule or PatternRule)>
     state 'x' to 'y' if
+        ; is CountRule state
         'a' may 1 2 ...
         'b' nomay 3 5 ...  ; equal "may 0 1 2 4 6 7 8"
         ...
+
+        ; is PatternRule state
+        '.' ',' any '.' ',' any '.' ',' any  ; equal NW N NE W O E SW S SE
     end
     ...
 end

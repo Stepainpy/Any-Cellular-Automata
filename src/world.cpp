@@ -85,6 +85,39 @@ std::unique_ptr<CountRule> parseCountRuleState(std::list<Token>& lst) {
     return rule;
 }
 
+std::unique_ptr<PatternRule> parsePatternRuleState(std::list<Token>& lst) {
+    needTokenCount(lst, 15, "state");
+    pop(lst).mustBe(Token::Phrase, "state");
+    Token beforeChar = pop(lst); beforeChar.mustBe(Token::Symbol);
+    pop(lst).mustBe(Token::Phrase, "to");
+    Token afterChar = pop(lst); afterChar.mustBe(Token::Symbol);
+    pop(lst).mustBe(Token::Phrase, "if");
+    
+    std::string pattern;
+    for (size_t i = 0; i < 9; i++) {
+        Token patPt = pop(lst);
+
+        switch (patPt.type) {
+            case Token::Symbol:
+                pattern.push_back(std::get<char>(patPt.data));
+            break;
+            case Token::Phrase: {
+                patPt.mustBe(Token::Phrase, "any");
+                pattern.push_back('\0');
+            } break;
+            default: {
+                std::cerr << ErrorPrefix << patPt.loc
+                << "In pattern excepted \"symbol\" or `any`, but received `"
+                << patPt.dataToStr() << "`\n";
+                std::exit(1);
+            } break;
+        }
+    }
+
+    pop(lst).mustBe(Token::Phrase, "end");
+    return std::make_unique<PatternRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data), pattern);
+}
+
 World buildWorld(std::list<Token>& lst) {
     /* Parse world statement */
     needTokenCount(lst, 5, "world");
@@ -117,17 +150,20 @@ World buildWorld(std::list<Token>& lst) {
     /* Parse rules statement */
     needTokenCount(lst, 3, "rules");
     pop(lst).mustBe(Token::Phrase, "rules");
-    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule"});
+    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule", "PatternRule"});
     Token ruleBlock = pop(lst); ruleBlock.mustBe(Token::Phrase, {"state", "end"});
+    std::string ruleNameStr = ruleName.dataToStr();
 
-    if (ruleName.dataToStr() == "CountRule") {
-        if (ruleBlock.dataToStr() == "state") {
-            lst.push_front(ruleBlock);
-            do {
+    if (ruleBlock.dataToStr() == "state") {
+        lst.push_front(ruleBlock);
+        do {
+            if (ruleNameStr == "CountRule") {
                 resultWorld.addRule(parseCountRuleState(lst));
-            } while (needTokenCount(lst, 1, "rules") && top(lst) != "end");
-            (void)pop(lst);  // drop 'end' of rules
-        }
+            } else if (ruleNameStr == "PatternRule") {
+                resultWorld.addRule(parsePatternRuleState(lst));
+            }
+        } while (needTokenCount(lst, 1, "rules") && top(lst) != "end");
+        (void)pop(lst);  // drop 'end' of rules
     }
 
     /* Parse setup statement */

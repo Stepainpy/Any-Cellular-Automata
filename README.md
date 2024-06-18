@@ -24,5 +24,5 @@ Single line comment start by `;`. See the other syntax in the [EBNF](syntax/worl
 
 ## TODO
 
-- [ ] Add pattern rule
+- [x] Add pattern rule
 - [x] Add comments in world file

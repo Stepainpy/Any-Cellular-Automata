@@ -3,9 +3,13 @@ complete_world = world_stmt, rules_stmt, setup_stmt;
 (*                    width   height  fill    alsize  alchars ...*)
 world_stmt = "world", number, number, symbol, number, symbol, {symbol};
 
-rules_stmt = "rules", ("CountRule"), { state_stmt }, "end";
-state_stmt = "state", symbol, "to", symbol, "if", may_stmt, {may_stmt}, "end";
+rules_stmt = "rules", ("CountRule"|"PatternRule"), { state_stmt }, "end";
+state_stmt = "state", symbol, "to", symbol, "if", (may_stmt, {may_stmt}|pattern_stmt), "end";
 may_stmt = symbol, ("may"|"nomay"), {number};
+pattern_stmt =
+(symbol|"any"), (symbol|"any"), (symbol|"any"),
+(symbol|"any"), (symbol|"any"), (symbol|"any"),
+(symbol|"any"), (symbol|"any"), (symbol|"any");
 
 setup_stmt = "setup", {command}, "end";
 command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd | random_cmd;
