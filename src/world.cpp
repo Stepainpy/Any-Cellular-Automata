@@ -133,8 +133,8 @@ World buildWorld(std::list<Token>& lst) {
     /* Parse setup statement */
     needTokenCount(lst, 2, "setup");
     pop(lst).mustBe(Token::Phrase, "setup");
-    Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase,
-        {"end", "cell", "linex", "liney", "rect", "pattern"});
+    const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random"};
+    Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
     
     while (commandTok.dataToStr() != "end") {
         if (commandTok.dataToStr() == "cell") {
@@ -249,11 +249,37 @@ World buildWorld(std::list<Token>& lst) {
                     resultWorld.getCell_FS(ex, ey) = c;
                 }
             }
+        } else if (commandTok.dataToStr() == "random") {
+            needTokenCount(lst, 4, "random command");
+            Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
+            Token  yTok = pop(lst);  yTok.mustBe(Token::Number);
+            Token  wTok = pop(lst);  wTok.mustBe(Token::Number);
+            Token  hTok = pop(lst);  hTok.mustBe(Token::Number);
+
+            size_t x = resultWorld.compressInWidth(std::abs(std::get<int>(xTok.data)));
+            size_t y = resultWorld.compressInHeight(std::abs(std::get<int>(yTok.data)));
+            size_t w = std::abs(std::get<int>(wTok.data));
+            size_t h = std::abs(std::get<int>(hTok.data));
+
+            if (w == 0 || h == 0) {
+                std::cerr << ErrorPrefix << "Rect size for command must be above zero\n";
+                std::exit(1);
+            }
+
+            size_t ex = resultWorld.compressInWidth(x + w - 1);
+            size_t ey = resultWorld.compressInHeight(y + h - 1);
+
+            for (size_t ty = y; ty <= ey; ty++) {
+                for (size_t tx = x; tx <= ex; tx++) {
+                    char c = resultWorld.m_alphabet[rand() % resultWorld.m_alphabet.size()];
+                    resultWorld.getCell(tx, ty) = c;
+                    resultWorld.getCell_FS(tx, ty) = c;
+                }
+            }
         }
 
         needTokenCount(lst, 1, "setup");
-        commandTok = pop(lst); commandTok.mustBe(Token::Phrase,
-            {"end", "cell", "linex", "liney", "rect", "pattern"});
+        commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
     }
     
     return resultWorld;

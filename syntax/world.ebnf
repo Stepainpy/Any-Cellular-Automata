@@ -8,7 +8,7 @@ state_stmt = "state", symbol, "to", symbol, "if", may_stmt, {may_stmt}, "end";
 may_stmt = symbol, ("may"|"nomay"), {number};
 
 setup_stmt = "setup", {command}, "end";
-command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd;
+command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd | random_cmd;
 
 (*                   char    x       y *)
 cell_cmd  = "cell",  symbol, number, number;
@@ -20,6 +20,8 @@ liney_cmd = "liney", symbol, number, number, number;
 rect_cmd  = "rect",  symbol, number, number, number, number;
 (*                       x       y       width   height  chars (need width * height) *)
 pattern_cmd = "pattern", number, number, number, number, symbol, {symbol};
+(*                     x       y       width   height *)
+random_cmd = "random", number, number, number, number;
 
 symbol = "'", ["\\"], char, "'";
 number = digit, {digit};

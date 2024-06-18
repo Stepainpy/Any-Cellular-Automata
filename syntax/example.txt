@@ -13,4 +13,5 @@ setup
     liney '.' <x: int> <y0: int> <y1: int>
     rect  '.' <x: int> <y: int> <width: int> <height: int>
     pattern <x: int> <y: int> <width: int> <height: int> '.' ... width*height ... '.'
+    random <x: int> <y: int> <width: int> <height: int>
 end
