@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <memory>
 
 #include "str_prefixs.hpp"
 #include "world.hpp"
@@ -27,15 +26,23 @@ int main(int argc, char** argv) {
     << "\e[H\e[2J"  // clear screen
     << "\e[?25l";   // set cursor invisible
 
+    auto begin = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
+
     bool isRun = true;
     while (isRun) {
+        begin = std::chrono::high_resolution_clock::now();
         world.display();
         world.update();
+        end = std::chrono::high_resolution_clock::now();
         
         // exit from app
         isRun = !(GetAsyncKeyState('Q') & 0x8000);
 
-        std::this_thread::sleep_for(20ms);  // 50 FPS
+        auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+        if (dur.count() > 20)
+            continue;
+        std::this_thread::sleep_for(20ms - dur);  // 50 FPS
     }
 
     std::cout
