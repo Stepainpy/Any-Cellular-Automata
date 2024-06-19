@@ -8,18 +8,17 @@
 #include "token.hpp"
 #include "rules.hpp"
 
-std::string top(const std::list<Token>& lst);
 Token pop(std::list<Token>& lst);
 bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string& stmt);
 
 namespace parse {
     namespace cmd {
-        void cell(std::list<Token>& lst, World& world);
-        void linex(std::list<Token>& lst, World& world);
-        void liney(std::list<Token>& lst, World& world);
-        void rect(std::list<Token>& lst, World& world);
+        void cell   (std::list<Token>& lst, World& world);
+        void linex  (std::list<Token>& lst, World& world);
+        void liney  (std::list<Token>& lst, World& world);
+        void rect   (std::list<Token>& lst, World& world);
         void pattern(std::list<Token>& lst, World& world);
-        void random(std::list<Token>& lst, World& world);
+        void random (std::list<Token>& lst, World& world);
     }
     namespace state {
         std::unique_ptr<CountRule> count(std::list<Token>& lst);

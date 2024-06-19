@@ -8,16 +8,9 @@
 #include "world.hpp"
 #include "lexer.hpp"
 
-using namespace std::chrono_literals;
+#define ESC_ASCII 27
 
-std::future<void> createTracker() {
-    return std::async(std::launch::async, []() {
-        while (true) {
-            if (_getch() == 27)
-                break;
-        }
-    });
-}
+using namespace std::chrono_literals;
 
 int main(int argc, char** argv) {
     srand(time(NULL));
@@ -39,16 +32,20 @@ int main(int argc, char** argv) {
     auto begin = std::chrono::high_resolution_clock::now();
     auto end   = std::chrono::high_resolution_clock::now();
 
-    auto tracker = createTracker();
-    bool isRun = true;
-    while (isRun) {
+    auto tracker = std::async(std::launch::async, []() {
+        while (true)
+            if (getch() == ESC_ASCII)
+                break;
+    });
+    bool run = true;
+    while (run) {
         begin = std::chrono::high_resolution_clock::now();
         world.display();
         world.update();
         end   = std::chrono::high_resolution_clock::now();
         
         // exit from app
-        isRun = !(tracker.wait_for(0s) == std::future_status::ready);
+        run = !(tracker.wait_for(0s) == std::future_status::ready);
 
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
         if (dur.count() > 20)

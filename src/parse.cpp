@@ -3,10 +3,6 @@
 
 #include "str_prefixs.hpp"
 
-std::string top(const std::list<Token>& lst) {
-    return (*lst.begin()).dataToStr();
-}
-
 Token pop(std::list<Token>& lst) {
     Token t = *lst.begin();
     lst.erase(lst.begin());
@@ -31,7 +27,7 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
 
     auto rule = std::make_unique<CountRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data));
 
-    while (needTokenCount(lst, 1, "if") && top(lst) != "end") {
+    while (needTokenCount(lst, 1, "if") && (*lst.begin()).dataToStr() != "end") {
         needTokenCount(lst, 3, "may");
         Token mayChar = pop(lst); mayChar.mustBe(Token::Symbol);
         Token mayType = pop(lst); mayType.mustBe(Token::Phrase, {"may", "nomay"});

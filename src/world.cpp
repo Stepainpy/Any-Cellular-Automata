@@ -59,7 +59,7 @@ World buildWorld(std::list<Token>& lst) {
                 resultWorld.addRule(parse::state::count(lst));
             else if (ruleNameStr == "PatternRule")
                 resultWorld.addRule(parse::state::pattern(lst));
-        } while (needTokenCount(lst, 1, "rules") && top(lst) != "end");
+        } while (needTokenCount(lst, 1, "rules") && (*lst.begin()).dataToStr() != "end");
         (void)pop(lst);  // drop 'end' of rules
     }
 
@@ -127,7 +127,7 @@ void World::display() const {
     static size_t i = 0;
     // return to start pos (left top) and display world
     std::cout << "\e[H" << m_world <<
-    "(Q - exit) Iter count: " << i++;
+    "(Esc - exit) Iter count: " << i++;
 }
 
 void World::addRule(std::unique_ptr<Rule> rule) {
