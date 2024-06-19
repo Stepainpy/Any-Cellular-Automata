@@ -27,7 +27,7 @@ struct Token {
     Location loc;
 
     std::string dataToStr() const;
-    bool mustBe(TokenType _type);
-    bool mustBe(TokenType _type, const std::string& str);
-    bool mustBe(TokenType _type, const std::initializer_list<std::string>& str);
+    bool mustBe(TokenType _type) const;
+    bool mustBe(TokenType _type, const std::string& str) const;
+    bool mustBe(TokenType _type, const std::initializer_list<std::string>& str) const;
 };

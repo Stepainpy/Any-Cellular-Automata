@@ -24,5 +24,6 @@ add_executable(${PROJECT_NAME}
     src/rules.cpp
     src/lexer.cpp
     src/token.cpp
+    src/parse.cpp
 )
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)

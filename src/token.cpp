@@ -23,7 +23,7 @@ std::string Token::dataToStr() const {
     }
 }
 
-bool Token::mustBe(TokenType _type) {
+bool Token::mustBe(TokenType _type) const {
     if (type != _type) {
         std::string strType;
         switch (_type) {
@@ -37,7 +37,7 @@ bool Token::mustBe(TokenType _type) {
     return true;
 }
 
-bool Token::mustBe(TokenType _type, const std::string& str) {
+bool Token::mustBe(TokenType _type, const std::string& str) const {
     if (type != _type) {
         std::string strType;
         switch (_type) {
@@ -54,7 +54,7 @@ bool Token::mustBe(TokenType _type, const std::string& str) {
     return true;
 }
 
-bool Token::mustBe(TokenType _type, const std::initializer_list<std::string> &strs) {
+bool Token::mustBe(TokenType _type, const std::initializer_list<std::string> &strs) const {
     if (type != _type) {
         std::string strType;
         switch (_type) {

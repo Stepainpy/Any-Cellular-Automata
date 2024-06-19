@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <ranges>
 
-bool CountRule::applyRule(char cellFrom, char& cellTo, const std::string& env, const std::string& alphabet) {
+bool CountRule::applyRule(char cellFrom, char& cellTo, const std::string& env, const std::string& alphabet) const {
     if (cellFrom != before)
         return false;
     
@@ -28,7 +28,7 @@ void CountRule::addSubRule(char subRuleCh, const std::set<size_t>& subRuleCnt) {
     m_need[subRuleCh] = subRuleCnt;
 }
 
-bool PatternRule::applyRule(char cellFrom, char& cellTo, const std::string& env, const std::string& alphabet) {
+bool PatternRule::applyRule(char cellFrom, char& cellTo, const std::string& env, const std::string& alphabet) const {
     (void)alphabet;
     if (comparePatterns(m_pattern, env.substr(0, 4) + cellFrom + env.substr(4))) {
         cellTo = after;
@@ -37,7 +37,7 @@ bool PatternRule::applyRule(char cellFrom, char& cellTo, const std::string& env,
     return false;
 }
 
-bool PatternRule::comparePatterns(const std::string& setted, const std::string& getted) {
+bool PatternRule::comparePatterns(const std::string& setted, const std::string& getted) const {
     for (size_t i = 0; i < 9; i++) {
         if (setted[i] == '\0')
             continue;

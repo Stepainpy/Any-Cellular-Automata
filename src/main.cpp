@@ -27,14 +27,14 @@ int main(int argc, char** argv) {
     << "\e[?25l";   // set cursor invisible
 
     auto begin = std::chrono::high_resolution_clock::now();
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end   = std::chrono::high_resolution_clock::now();
 
     bool isRun = true;
     while (isRun) {
         begin = std::chrono::high_resolution_clock::now();
         world.display();
         world.update();
-        end = std::chrono::high_resolution_clock::now();
+        end   = std::chrono::high_resolution_clock::now();
         
         // exit from app
         isRun = !(GetAsyncKeyState('Q') & 0x8000);
