@@ -27,7 +27,9 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
 
     auto rule = std::make_unique<CountRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data));
 
+    bool isEmptyIf = true;
     while (needTokenCount(lst, 1, "if") && (*lst.begin()).dataToStr() != "end") {
+        isEmptyIf = false;
         needTokenCount(lst, 3, "may");
         Token mayChar = pop(lst); mayChar.mustBe(Token::Symbol);
         Token mayType = pop(lst); mayType.mustBe(Token::Phrase, {"may", "nomay"});
@@ -54,6 +56,8 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
             break;
         lst.push_front(maybeEnd);
     }
+    if (isEmptyIf)
+        (void)pop(lst);  // pop 'end' of if block
 
     return rule;
 }
