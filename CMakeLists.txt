@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(aca VERSION 1.0 LANGUAGES CXX)
 
-if(NOT WIN32)
-    message(WARNING "I use Windows key handler")
-    return()
-endif()
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
