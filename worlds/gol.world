@@ -1,9 +1,9 @@
-world 80 29 '.' 2 '.' '#'
+world 80 30 '.' 2 '.' '#'
 rules CountRule
-    state '.' to '#' if
+    state '.' to '#' if  ; birth if 3 neighbors
         '#' may 3
     end
-    state '#' to '.' if
+    state '#' to '.' if  ; dead if not 2 or 3 neighbors
         '#' nomay 2 3
     end
 end

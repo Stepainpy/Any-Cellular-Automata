@@ -1,16 +1,19 @@
-;                 none wire head tail
-world 80 29 '.' 4 '.'  '*'  '@'  '-'
+world 80 30 '.' 4
+'.' ; none
+'*' ; wire
+'@' ; head
+'-' ; tail
 rules CountRule
-    state '*' to '@' if
+    state '*' to '@' if ; if 1 or 2 head => wire -> head
         '@' may 1 2
     end
-    state '@' to '-' if ; head -> tail
+    state '@' to '-' if ; always head -> tail
         '.' nomay
         '*' nomay
         '@' nomay
         '-' nomay
     end
-    state '-' to '*' if ; tail -> wire
+    state '-' to '*' if ; always tail -> wire
         '.' nomay
         '*' nomay
         '@' nomay
@@ -33,5 +36,6 @@ setup
     ; between wire
     liney '*' 40 10 20
 
+    ; start charge
     cell '@' 5 10
 end

@@ -1,17 +1,20 @@
 world <width: int> <height: int> '.' <alphabet-size: int> '.' '#' ...
 rules <ruleName: Rule (CountRule or PatternRule)>
     state 'x' to 'y' if
-        ; is CountRule state
+        ; CountRule state
         'a' may 1 2 ...
         'b' nomay 3 5 ...  ; equal "may 0 1 2 4 6 7 8"
         ...
 
-        ; is PatternRule state
-        '.' ',' any '.' ',' any '.' ',' any  ; equal NW N NE W O E SW S SE
+        ; PatternRule state
+        '.' ',' any '.' any any any ',' any  ; respectively equal NW N NE W O E SW S SE
     end
     ...
 end
 setup
+    ; correct x may be 0..width-1
+    ; correct y may be 0..height-1
+
     cell  '.' <x: int> <y: int>
     linex '.' <x0: int> <y: int> <x1: int>
     liney '.' <x: int> <y0: int> <y1: int>
