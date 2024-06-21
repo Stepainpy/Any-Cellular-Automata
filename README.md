@@ -35,6 +35,30 @@ as `'a' and 'b' and 'c'`
 numbers in may statement checking via `or`  
 `'a' may 1 2 3` as `1 or 2 or 3`
 
+## Modified 'Game of life' rule
+
+Rules for original game maybe present as `B3/S23`, where `B` - birth, `S` - survive  
+
+Template:
+```
+world 80 30 '.' 2
+'.' ; dead
+'#' ; live
+rules CountRule
+    state '.' to '#' if '#' may
+        ; numbers in 'B'
+    end
+    state '#' to '.' if '#' nomay
+        ; numbers in 'S'
+    end
+end
+setup
+    ; your setup of world
+end
+```
+
+Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world)
+
 ## TODO
 
 - [x] Add pattern rule
