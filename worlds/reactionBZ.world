@@ -6,6 +6,4 @@ rules CountRule
     state '*' to '@' if '@' may 3 4 end
     state '@' to '.' if '.' may 3 4 end
 end
-setup
-    random 0 0 80 30
-end
+setup random 0 0 80 30 end
