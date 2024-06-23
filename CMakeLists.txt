@@ -15,7 +15,7 @@ endif()
 include_directories(inc)
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/world.cpp
+    src/conworld.cpp
     src/rules.cpp
     src/lexer.cpp
     src/token.cpp

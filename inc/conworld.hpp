@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <utility>
 #include <string>
 #include <vector>
 #include <memory>
@@ -9,7 +8,7 @@
 #include "rules.hpp"
 #include "token.hpp"
 
-class World {
+class ConsoleWorld {
 public:
     void update();
     void display() const;
@@ -28,8 +27,8 @@ public:
     std::string getAlphabet() const;
 
 private:
-    World(size_t w, size_t h, char fillCh);
-    friend World buildWorld(std::list<Token>& lst);
+    ConsoleWorld(size_t w, size_t h, char fillCh);
+    friend ConsoleWorld buildConsoleWorld(std::list<Token>& lst);
 
 private:
     size_t width, height, N;
@@ -39,4 +38,4 @@ private:
     std::vector<std::unique_ptr<Rule>> m_rules;
 };
 
-World buildWorld(std::list<Token>& lst);
+ConsoleWorld buildConsoleWorld(std::list<Token>& lst);

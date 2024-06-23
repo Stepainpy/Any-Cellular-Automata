@@ -1,4 +1,4 @@
-#include "world.hpp"
+#include "conworld.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -16,7 +16,7 @@ const std::pair<long long, long long> deltas[8] = {
     {  1,  1 }   // SE
 };
 
-World buildWorld(std::list<Token>& lst) {
+ConsoleWorld buildConsoleWorld(std::list<Token>& lst) {
     /* Parse world statement */
     needTokenCount(lst, 5, "world");
     pop(lst).mustBe(Token::Phrase, "world");
@@ -32,7 +32,7 @@ World buildWorld(std::list<Token>& lst) {
         std::exit(1);
     }
 
-    World resultWorld(width, height, std::get<char>(fillWorld.data));
+    ConsoleWorld resultWorld(width, height, std::get<char>(fillWorld.data));
 
     size_t albSize = std::abs(std::get<int>(alphabetSize.data));
     if (albSize == 0) {
@@ -91,7 +91,7 @@ World buildWorld(std::list<Token>& lst) {
     return resultWorld;
 }
 
-World::World(size_t w, size_t h, char fillCh)
+ConsoleWorld::ConsoleWorld(size_t w, size_t h, char fillCh)
     : width(w), height(h), N(w * h) {
     std::ostringstream oss;
     for (size_t j = 0; j < h; j++)
@@ -99,7 +99,7 @@ World::World(size_t w, size_t h, char fillCh)
     m_farSideWorld = m_world = oss.str();
 }
 
-void World::update() {
+void ConsoleWorld::update() {
     using ll = long long;
     static const auto mod = [](ll a, ll b) -> ll {
         return ((a % b) + b) % b;
@@ -123,26 +123,26 @@ void World::update() {
     m_world = m_farSideWorld;
 }
 
-void World::display() const {
+void ConsoleWorld::display() const {
     static size_t i = 0;
     // return to start pos (left top) and display world
     std::cout << "\e[H" << m_world <<
     "(Esc - exit) Iter count: " << i++;
 }
 
-void World::addRule(std::unique_ptr<Rule> rule) {
+void ConsoleWorld::addRule(std::unique_ptr<Rule> rule) {
     m_rules.push_back(std::move(rule));
 }
 
-std::string World::getAlphabet() const {
+std::string ConsoleWorld::getAlphabet() const {
     return m_alphabet;
 }
 
-size_t World::compressInWidth(size_t x) const {
+size_t ConsoleWorld::compressInWidth(size_t x) const {
     return x < width ? x : width - 1;
 }
 
-size_t World::compressInHeight(size_t y) const {
+size_t ConsoleWorld::compressInHeight(size_t y) const {
     return y < height ? y : height - 1;
 }
 
@@ -151,18 +151,18 @@ Functions "getCell" auto wrap coordinate or index
 in order to avoid out of range
 */
 
-char& World::getCell(size_t x, size_t y) {
+char& ConsoleWorld::getCell(size_t x, size_t y) {
     return m_world[(y % height) * (width + 1) + (x % width)];
 }
 
-char& World::getCell(size_t i) {
+char& ConsoleWorld::getCell(size_t i) {
     return m_world[(i % N) + (i % N) / width];
 }
 
-char& World::getCell_FS(size_t x, size_t y) {
+char& ConsoleWorld::getCell_FS(size_t x, size_t y) {
     return m_farSideWorld[(y % height) * (width + 1) + (x % width)];
 }
 
-char& World::getCell_FS(size_t i) {
+char& ConsoleWorld::getCell_FS(size_t i) {
     return m_farSideWorld[(i % N) + (i % N) / width];
 }

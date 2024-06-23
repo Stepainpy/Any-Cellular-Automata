@@ -5,7 +5,7 @@
 #include <future>
 
 #include "str_prefixs.hpp"
-#include "world.hpp"
+#include "conworld.hpp"
 #include "lexer.hpp"
 
 #define ESC_ASCII 27
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 
     Lexer lexer(argv[1]);
     auto l = lexer.parse();
-    World world = buildWorld(l);
+    ConsoleWorld world = buildConsoleWorld(l);
 
     // Game loop
 

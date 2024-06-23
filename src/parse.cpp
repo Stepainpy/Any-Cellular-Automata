@@ -95,7 +95,7 @@ std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
     return std::make_unique<PatternRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data), pattern);
 }
 
-void parse::cmd::cell(std::list<Token> &lst, World &world) {
+void parse::cmd::cell(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 3, "cell command");
     Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
@@ -109,7 +109,7 @@ void parse::cmd::cell(std::list<Token> &lst, World &world) {
     world.getCell_FS(x, y) = c;
 }
 
-void parse::cmd::linex(std::list<Token> &lst, World &world) {
+void parse::cmd::linex(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 4, "linex command");
     Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
     Token x0Tok = pop(lst); x0Tok.mustBe(Token::Number);
@@ -130,7 +130,7 @@ void parse::cmd::linex(std::list<Token> &lst, World &world) {
     }
 }
 
-void parse::cmd::liney(std::list<Token> &lst, World &world) {
+void parse::cmd::liney(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 4, "liney command");
     Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
@@ -151,7 +151,7 @@ void parse::cmd::liney(std::list<Token> &lst, World &world) {
     }
 }
 
-void parse::cmd::rect(std::list<Token> &lst, World &world) {
+void parse::cmd::rect(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 5, "rect command");
     Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
     Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
@@ -181,7 +181,7 @@ void parse::cmd::rect(std::list<Token> &lst, World &world) {
     }
 }
 
-void parse::cmd::pattern(std::list<Token> &lst, World &world) {
+void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 4, "pattern command");
     Token xTok = pop(lst); xTok.mustBe(Token::Number);
     Token yTok = pop(lst); yTok.mustBe(Token::Number);
@@ -217,12 +217,12 @@ void parse::cmd::pattern(std::list<Token> &lst, World &world) {
     }
 }
 
-void parse::cmd::random(std::list<Token> &lst, World &world) {
+void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world) {
     needTokenCount(lst, 4, "random command");
-    Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
-    Token  yTok = pop(lst);  yTok.mustBe(Token::Number);
-    Token  wTok = pop(lst);  wTok.mustBe(Token::Number);
-    Token  hTok = pop(lst);  hTok.mustBe(Token::Number);
+    Token xTok = pop(lst); xTok.mustBe(Token::Number);
+    Token yTok = pop(lst); yTok.mustBe(Token::Number);
+    Token wTok = pop(lst); wTok.mustBe(Token::Number);
+    Token hTok = pop(lst); hTok.mustBe(Token::Number);
 
     size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
     size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));

@@ -4,7 +4,7 @@
 #include <format>
 #include <list>
 
-#include "world.hpp"
+#include "conworld.hpp"
 #include "token.hpp"
 #include "rules.hpp"
 
@@ -13,12 +13,12 @@ bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string
 
 namespace parse {
     namespace cmd {
-        void cell   (std::list<Token>& lst, World& world);
-        void linex  (std::list<Token>& lst, World& world);
-        void liney  (std::list<Token>& lst, World& world);
-        void rect   (std::list<Token>& lst, World& world);
-        void pattern(std::list<Token>& lst, World& world);
-        void random (std::list<Token>& lst, World& world);
+        void cell   (std::list<Token>& lst, ConsoleWorld& world);
+        void linex  (std::list<Token>& lst, ConsoleWorld& world);
+        void liney  (std::list<Token>& lst, ConsoleWorld& world);
+        void rect   (std::list<Token>& lst, ConsoleWorld& world);
+        void pattern(std::list<Token>& lst, ConsoleWorld& world);
+        void random (std::list<Token>& lst, ConsoleWorld& world);
     }
     namespace state {
         std::unique_ptr<CountRule> count(std::list<Token>& lst);
