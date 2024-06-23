@@ -1,7 +1,7 @@
 {
     "pixel": {
-        "width": 10,
-        "height": 10
+        "width": 15,
+        "height": 15
     },
     "dict": {
         ".": [ 24,  24,  24],
