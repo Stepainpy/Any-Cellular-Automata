@@ -52,10 +52,14 @@ void useGui(GuiWorld& world) {
     InitWindow(width, height, "ACA");
     SetTargetFPS(50);
 
+    bool viewIter = false;
     while (!WindowShouldClose()) {
+        if (IsKeyPressed(KEY_F3))
+            viewIter = !viewIter;
+
         BeginDrawing();
         ClearBackground(BLACK);
-        world.display();
+        world.display(viewIter);
         EndDrawing();
 
         world.update();

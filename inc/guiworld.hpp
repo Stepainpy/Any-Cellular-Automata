@@ -13,7 +13,7 @@
 class GuiWorld {
 public:
     void update();
-    void display() const;
+    void display(bool viewIters) const;
 
     char getCell(size_t x, size_t y);
     char getCell(size_t i);

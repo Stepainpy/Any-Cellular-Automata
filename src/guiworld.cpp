@@ -142,7 +142,7 @@ void GuiWorld::update() {
     }
 }
 
-void GuiWorld::display() const {
+void GuiWorld::display(bool viewIter) const {
     static size_t i = 0;
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
@@ -156,7 +156,8 @@ void GuiWorld::display() const {
         }
     }
     std::string message = std::format("Iter count: {}", i++);
-    DrawText(message.c_str(), 3, 3, 20, GREEN);
+    if (viewIter)
+        DrawText(message.c_str(), 3, 3, 20, GREEN);
 }
 
 void GuiWorld::addRule(std::unique_ptr<Rule> rule) {
