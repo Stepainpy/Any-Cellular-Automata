@@ -13,12 +13,15 @@ if(OPENMP_FOUND)
 endif()
 
 include_directories(inc)
+link_directories(lib)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/conworld.cpp
+    src/guiworld.cpp
     src/rules.cpp
     src/lexer.cpp
     src/token.cpp
     src/parse.cpp
 )
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_link_libraries(${PROJECT_NAME} libraylib.a winmm gdi32)

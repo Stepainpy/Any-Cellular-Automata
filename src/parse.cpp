@@ -1,6 +1,9 @@
 #include "parse.hpp"
 #include <iostream>
+#include <fstream>
+#include <vector>
 
+#include <nlohmann/json.hpp>
 #include "str_prefixs.hpp"
 
 Token pop(std::list<Token>& lst) {
@@ -15,6 +18,85 @@ bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string
         std::exit(1);
     }
     return true;
+}
+
+GuiSetting parse::guiSet(const std::string& path) {
+    using json = nlohmann::json;
+
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << ErrorPrefix << "Couldn't open the file '" << path << "'\n";
+        std::exit(1);
+    }
+    std::string ErrorJsonPrefix = ErrorPrefix + path + ": ";
+
+    json jSetting;
+    try { jSetting = json::parse(file); }
+    catch (const json::parse_error& err) {
+        std::cerr << ErrorJsonPrefix << err.what() << std::endl;
+        std::exit(1);
+    }
+
+    if (!jSetting.is_object()) {
+        std::cerr << ErrorJsonPrefix << "json content must be object\n";
+        std::exit(1);
+    }
+
+    GuiSetting result;
+
+    if (!jSetting.contains("pixel") || !jSetting.contains("dict")) {
+        std::cerr << ErrorJsonPrefix << "json must contains fields `pixel` and `dict`\n";
+        std::exit(1);
+    }
+    json jPixel = jSetting["pixel"];
+    json jDict = jSetting["dict"];
+
+    if (!jPixel.is_object()) {
+        std::cerr << ErrorJsonPrefix << "field `pixel` must be object\n";
+        std::exit(1);
+    }
+    if (!jPixel.contains("width") || !jPixel.contains("height")) {
+        std::cerr << ErrorJsonPrefix << "field `pixel` must containts fields `width` and `height`\n";
+        std::exit(1);
+    }
+    if (!jPixel["width"].is_number_unsigned() || !jPixel["height"].is_number_unsigned()) {
+        std::cerr << ErrorJsonPrefix << "fields `width` and `height` must be unsigned number\n";
+        std::exit(1);
+    }
+    result.pixelWidth = jPixel["width"].get<int>();
+    result.pixelHeight = jPixel["height"].get<int>();
+
+    if (!jDict.is_object()) {
+        std::cerr << ErrorJsonPrefix << "field `dict` must be object\n";
+        std::exit(1);
+    }
+    for (const auto& compPair : jDict.items()) {
+        if (compPair.key().length() > 1) {
+            std::cerr << ErrorJsonPrefix << "compare char in json must be length 1\n";
+            std::exit(1);
+        }
+        if (!compPair.value().is_array()) {
+            std::cerr << ErrorJsonPrefix << "compare color in json must be array\n";
+            std::exit(1);
+        }
+        char ch = compPair.key()[0];
+        auto colorArray = compPair.value().get<std::vector<int>>();
+        if (colorArray.size() != 3) {
+            std::cerr << ErrorJsonPrefix << "compare color must be content 3 numbers\n";
+            std::exit(1);
+        }
+        Color col = {
+            (unsigned char)colorArray[0],
+            (unsigned char)colorArray[1],
+            (unsigned char)colorArray[2],
+            255
+        };
+
+        result.foreConvert[ch] = col;
+        result.backConvert[col] = ch;
+    }
+
+    return result;
 }
 
 std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
@@ -243,6 +325,158 @@ void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world) {
             char c = alphabet[rand() % alphabet.size()];
             world.getCell(tx, ty) = c;
             world.getCell_FS(tx, ty) = c;
+        }
+    }
+}
+
+void parse::cmd::cell(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 3, "cell command");
+    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
+    Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
+
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+
+    char c = std::get<char>(chTok.data);
+    world.setCell(c, x, y);
+    world.setCell_FS(c, x, y);
+}
+
+void parse::cmd::linex(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 4, "linex command");
+    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token x0Tok = pop(lst); x0Tok.mustBe(Token::Number);
+    Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
+    Token x1Tok = pop(lst); x1Tok.mustBe(Token::Number);
+
+    size_t x0 = world.compressInWidth(std::abs(std::get<int>(x0Tok.data)));
+    size_t x1 = world.compressInWidth(std::abs(std::get<int>(x1Tok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+
+    if (x0 > x1)
+        std::swap(x0, x1);
+
+    for (size_t tx = x0; tx <= x1; tx++) {
+        char c = std::get<char>(chTok.data);
+        world.setCell(c, tx, y);
+        world.setCell_FS(c, tx, y);
+    }
+}
+
+void parse::cmd::liney(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 4, "liney command");
+    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
+    Token y0Tok = pop(lst); y0Tok.mustBe(Token::Number);
+    Token y1Tok = pop(lst); y1Tok.mustBe(Token::Number);
+
+    size_t x  = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y0 = world.compressInHeight(std::abs(std::get<int>(y0Tok.data)));
+    size_t y1 = world.compressInHeight(std::abs(std::get<int>(y1Tok.data)));
+
+    if (y0 > y1)
+        std::swap(y0, y1);
+
+    for (size_t ty = y0; ty <= y1; ty++) {
+        char c = std::get<char>(chTok.data);
+        world.setCell(c, x, ty);
+        world.setCell_FS(c, x, ty);
+    }
+}
+
+void parse::cmd::rect(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 5, "rect command");
+    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
+    Token  yTok = pop(lst);  yTok.mustBe(Token::Number);
+    Token  wTok = pop(lst);  wTok.mustBe(Token::Number);
+    Token  hTok = pop(lst);  hTok.mustBe(Token::Number);
+
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+    size_t w = std::abs(std::get<int>(wTok.data));
+    size_t h = std::abs(std::get<int>(hTok.data));
+
+    if (w == 0 || h == 0) {
+        std::cerr << ErrorPrefix << "Rect size for command must be above zero\n";
+        std::exit(1);
+    }
+
+    size_t ex = world.compressInWidth(x + w - 1);
+    size_t ey = world.compressInHeight(y + h - 1);
+
+    for (size_t ty = y; ty <= ey; ty++) {
+        for (size_t tx = x; tx <= ex; tx++) {
+            char c = std::get<char>(chTok.data);
+            world.setCell(c, tx, ty);
+            world.setCell_FS(c, tx, ty);
+        }
+    }
+}
+
+void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 4, "pattern command");
+    Token xTok = pop(lst); xTok.mustBe(Token::Number);
+    Token yTok = pop(lst); yTok.mustBe(Token::Number);
+    Token wTok = pop(lst); wTok.mustBe(Token::Number);
+    Token hTok = pop(lst); hTok.mustBe(Token::Number);
+
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+    size_t w = std::abs(std::get<int>(wTok.data));
+    size_t h = std::abs(std::get<int>(hTok.data));
+
+    if (w == 0 || h == 0) {
+        std::cerr << ErrorPrefix << "Rect size for command must be above zero\n";
+        std::exit(1);
+    }
+
+    size_t patternLength = w * h;
+    std::string pattern;
+    needTokenCount(lst, patternLength, "pattern command chars");
+    for (size_t i = 0; i < patternLength; i++) {
+        Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+        pattern.push_back(std::get<char>(chTok.data));
+    }
+
+    for (size_t row = 0; row < h; row++) {
+        for (size_t i = 0; i < w; i++) {
+            size_t ex = world.compressInWidth(x + i);
+            size_t ey = world.compressInHeight(y + row);
+            char c = pattern[row * w + i];
+            world.setCell(c, ex, ey);
+            world.setCell_FS(c, ex, ey);
+        }
+    }
+}
+
+void parse::cmd::random(std::list<Token> &lst, GuiWorld &world) {
+    needTokenCount(lst, 4, "random command");
+    Token xTok = pop(lst); xTok.mustBe(Token::Number);
+    Token yTok = pop(lst); yTok.mustBe(Token::Number);
+    Token wTok = pop(lst); wTok.mustBe(Token::Number);
+    Token hTok = pop(lst); hTok.mustBe(Token::Number);
+
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+    size_t w = std::abs(std::get<int>(wTok.data));
+    size_t h = std::abs(std::get<int>(hTok.data));
+
+    if (w == 0 || h == 0) {
+        std::cerr << ErrorPrefix << "Rect size for command must be above zero\n";
+        std::exit(1);
+    }
+
+    size_t ex = world.compressInWidth(x + w - 1);
+    size_t ey = world.compressInHeight(y + h - 1);
+
+    std::string alphabet = world.getAlphabet();
+    for (size_t ty = y; ty <= ey; ty++) {
+        for (size_t tx = x; tx <= ex; tx++) {
+            char c = alphabet[rand() % alphabet.size()];
+            world.setCell(c, tx, ty);
+            world.setCell_FS(c, tx, ty);
         }
     }
 }

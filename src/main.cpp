@@ -4,27 +4,17 @@
 #include <chrono>
 #include <future>
 
+#include <raylib/raylib.h>
 #include "str_prefixs.hpp"
 #include "conworld.hpp"
+#include "guiworld.hpp"
 #include "lexer.hpp"
 
 #define ESC_ASCII 27
 
 using namespace std::chrono_literals;
 
-int main(int argc, char** argv) {
-    srand(time(NULL));
-    if (argc != 2) {
-        std::cerr << ErrorPrefix << "Must be specificate one argument (world file path)\n";
-        return 1;
-    }
-
-    Lexer lexer(argv[1]);
-    auto l = lexer.parse();
-    ConsoleWorld world = buildConsoleWorld(l);
-
-    // Game loop
-
+void useConsole(ConsoleWorld& world) {
     std::cout
     << "\e[H\e[2J"  // clear screen
     << "\e[?25l";   // set cursor invisible
@@ -55,4 +45,41 @@ int main(int argc, char** argv) {
 
     std::cout
     << "\e[?25h";  // set cursor visible
+}
+
+void useGui(GuiWorld& world) {
+    auto [width, height] = world.getWindowSize();
+    InitWindow(width, height, "ACA");
+    SetTargetFPS(50);
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+        world.display();
+        EndDrawing();
+
+        world.update();
+    }
+
+    CloseWindow();
+}
+
+int main(int argc, char** argv) {
+    srand(time(NULL));
+    if (!(argc == 2 || argc == 3)) {
+        std::cerr << ErrorPrefix << "Must be specificate one (world file path) or two (world file and gui setting json) argument\n";
+        std::cerr << "[Usage]: ./aca <world file> [<guis setting json>]\n";
+        return 1;
+    }
+
+    Lexer lexer(argv[1]);
+    auto l = lexer.parse();
+
+    if (argc == 3) {
+        GuiWorld world = buildGuiWorld(l, argv[2]);
+        useGui(world);
+    } else {
+        ConsoleWorld world = buildConsoleWorld(l);
+        useConsole(world);
+    }
 }

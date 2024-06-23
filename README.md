@@ -2,7 +2,20 @@
 
 This program allows you to create cellular automata based on a given world file.
 
-## Build
+## Content
+
+- [Quick start](#quick-start)
+  - [Build](#build)
+  - [Launch](#launch)
+- [World file syntax](#world-file-syntax)
+  - [As work may statement](#as-work-may-statements)
+- [Json gui setting](#json-gui-setting)
+- [Modifying 'Game of life' rule](#modifying-game-of-life-rule)
+- [Todo](#todo)
+
+## Quick start
+
+### Build
 
 ``` console
 mkdir build
@@ -10,12 +23,17 @@ cmake -S . -B build
 cmake --build build
 ```
 
-## Launch
+### Launch
 
+As console app
 ``` console
 ./aca worlds/gol.world
 ```
-This is app run in console
+
+As graphich app (use [Raylib](https://github.com/raysan5/raylib))
+```
+./aca worlds/gol.world worlds/gui/gol.json
+```
 
 ## World file syntax
 
@@ -35,7 +53,28 @@ as `'a' and 'b' and 'c'`
 numbers in may statement checking via `or`  
 `'a' may 1 2 3` as `1 or 2 or 3`
 
-## Modified 'Game of life' rule
+## Json gui setting
+
+Show example with ['Game of life' gui](worlds/gui/gol.json)
+``` json
+{
+    "pixel": {
+        "width" : 10,
+        "height": 10
+    },
+    "dict": {
+        ".": [ 24,  24,  24],
+        "#": [231, 231, 231]
+    }
+}
+```
+Where field:
+- `pixel` contains self size
+- `dict` contains matched char with color (in RGB)
+
+Colors in `dict` must be unique because char matched to color and color matched to char
+
+## Modifying 'Game of life' rule
 
 Rules for original game maybe present as `B3/S23`, where `B` - birth, `S` - survive  
 
@@ -57,7 +96,8 @@ setup
 end
 ```
 
-Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world)
+Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world)  
+For gui use [gol.json](worlds/gui/gol.json)
 
 ## TODO
 
