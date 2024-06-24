@@ -33,6 +33,8 @@ ConsoleWorld::ConsoleWorld(size_t w, size_t h, char fillCh)
     for (size_t j = 0; j < h; j++)
         oss << std::string(w, fillCh) << '\n';
     m_farSideWorld = m_world = oss.str();
+    m_world.pop_back();
+    m_farSideWorld.pop_back();
 }
 
 void ConsoleWorld::update() {
@@ -59,11 +61,13 @@ void ConsoleWorld::update() {
     m_world = m_farSideWorld;
 }
 
-void ConsoleWorld::display() const {
+void ConsoleWorld::display(bool viewIter) const {
     static size_t i = 0;
     // return to start pos (left top) and display world
-    std::cout << "\e[H" << m_world <<
-    "(Esc - exit) Iter count: " << i++;
+    std::cout << "\e[H" << m_world;
+    if (viewIter)
+        std::cout << "\r(Esc - exit) Iter count: " << i;
+    i++;
 }
 
 void ConsoleWorld::addRule(std::unique_ptr<Rule> rule) {

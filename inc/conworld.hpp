@@ -13,7 +13,7 @@
 class ConsoleWorld : public World {
 public:
     void update();
-    void display() const;
+    void display(bool viewIter) const;
 
     char& getCell(size_t x, size_t y);
     char& getCell(size_t i);

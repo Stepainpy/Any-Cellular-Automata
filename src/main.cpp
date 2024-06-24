@@ -10,7 +10,8 @@
 #include "guiworld.hpp"
 #include "lexer.hpp"
 
-#define ESC_ASCII 27
+const int ESC_ASCII    = 27;
+const int GETCH_KEY_F3 = 61;
 
 using namespace std::chrono_literals;
 
@@ -21,16 +22,24 @@ void useConsole(ConsoleWorld& world) {
 
     auto begin = std::chrono::high_resolution_clock::now();
     auto end   = std::chrono::high_resolution_clock::now();
+    bool viewIter = false;
 
-    auto tracker = std::async(std::launch::async, []() {
-        while (true)
-            if (getch() == ESC_ASCII)
+    auto tracker = std::async(std::launch::async, [&viewIter]() {
+        while (true) {
+            int c = getch();
+            if (c == ESC_ASCII)
                 break;
+            else if (c == 0) {
+                int c2 = getch();
+                if (c2 == GETCH_KEY_F3)
+                    viewIter = !viewIter;
+            }
+        }
     });
     bool run = true;
     while (run) {
         begin = std::chrono::high_resolution_clock::now();
-        world.display();
+        world.display(viewIter);
         world.update();
         end   = std::chrono::high_resolution_clock::now();
         
