@@ -23,77 +23,13 @@ const std::pair<long long, long long> deltas[8] = {
 };
 
 GuiWorld buildGuiWorld(std::list<Token>& lst, const std::string& settingPath) {
-    /* Parse world statement */
-    needTokenCount(lst, 5, "world");
-    pop(lst).mustBe(Token::Phrase, "world");
-    Token widthWorld   = pop(lst);   widthWorld.mustBe(Token::Number);
-    Token heightWorld  = pop(lst);  heightWorld.mustBe(Token::Number);
-    Token fillWorld    = pop(lst);    fillWorld.mustBe(Token::Symbol);
-    Token alphabetSize = pop(lst); alphabetSize.mustBe(Token::Number);
-
-    size_t width  = std::abs(std::get<int>(widthWorld.data));
-    size_t height = std::abs(std::get<int>(heightWorld.data));
-    if (width == 0 || height == 0) {
-        std::cerr << ErrorPrefix << "World size must be above zero\n";
-        std::exit(1);
-    }
-
+    const auto [width, height, fillChar, alphabet] = parse::stmt::world(lst);
     GuiSetting setting = parse::guiSet(settingPath);
-    GuiWorld resultWorld(width, height, std::get<char>(fillWorld.data), setting);
-
-    size_t albSize = std::abs(std::get<int>(alphabetSize.data));
-    if (albSize == 0) {
-        std::cerr << ErrorPrefix << "Alphabet size must be above zero\n";
-        std::exit(1);
-    }
-    for (size_t i = 0; i < albSize; i++) {
-        needTokenCount(lst, 1, "alphabet");
-        Token albCh = pop(lst); albCh.mustBe(Token::Symbol);
-        resultWorld.m_alphabet.push_back(std::get<char>(albCh.data));
-    }
-
-    /* Parse rules statement */
-    needTokenCount(lst, 3, "rules");
-    pop(lst).mustBe(Token::Phrase, "rules");
-    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule", "PatternRule"});
-    Token ruleBlock = pop(lst); ruleBlock.mustBe(Token::Phrase, {"state", "end"});
-    std::string ruleNameStr = ruleName.dataToStr();
-
-    if (ruleBlock.dataToStr() == "state") {
-        lst.push_front(ruleBlock);
-        do {
-            if (ruleNameStr == "CountRule")
-                resultWorld.addRule(parse::state::count(lst));
-            else if (ruleNameStr == "PatternRule")
-                resultWorld.addRule(parse::state::pattern(lst));
-        } while (needTokenCount(lst, 1, "rules") && (*lst.begin()).dataToStr() != "end");
-        (void)pop(lst);  // drop 'end' of rules
-    }
-
-    /* Parse setup statement */
-    needTokenCount(lst, 2, "setup");
-    pop(lst).mustBe(Token::Phrase, "setup");
-    const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random"};
-    Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
     
-    while (commandTok.dataToStr() != "end") {
-        if (commandTok.dataToStr() == "cell") {
-            parse::cmd::cell(lst, resultWorld);
-        } else if (commandTok.dataToStr() == "linex") {
-            parse::cmd::linex(lst, resultWorld);
-        } else if (commandTok.dataToStr() == "liney") {
-            parse::cmd::liney(lst, resultWorld);
-        } else if (commandTok.dataToStr() == "rect") {
-            parse::cmd::rect(lst, resultWorld);
-        } else if (commandTok.dataToStr() == "pattern") {
-            parse::cmd::pattern(lst, resultWorld);
-        } else if (commandTok.dataToStr() == "random") {
-            parse::cmd::random(lst, resultWorld);
-        }
-
-        needTokenCount(lst, 1, "setup");
-        commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
-    }
+    GuiWorld resultWorld(width, height, fillChar, setting);
+    resultWorld.m_alphabet = alphabet;
+    parse::stmt::rules(lst,  resultWorld);
+    parse::stmt::setup(lst, &resultWorld);
     
     return resultWorld;
 }

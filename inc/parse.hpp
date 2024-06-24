@@ -2,8 +2,10 @@
 #include <string>
 #include <memory>
 #include <format>
+#include <tuple>
 #include <list>
 
+#include "world.hpp"
 #include "conworld.hpp"
 #include "guiworld.hpp"
 #include "token.hpp"
@@ -14,6 +16,11 @@ bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string
 
 namespace parse {
     GuiSetting guiSet(const std::string& path);
+    namespace stmt {
+        std::tuple<size_t, size_t, char, std::string> world(std::list<Token>& lst);
+        void rules(std::list<Token>& lst, World& world);
+        void setup(std::list<Token>& lst, World* world);
+    }
     namespace cmd {
         void cell   (std::list<Token>& lst, ConsoleWorld& world);
         void linex  (std::list<Token>& lst, ConsoleWorld& world);

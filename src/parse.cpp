@@ -99,6 +99,99 @@ GuiSetting parse::guiSet(const std::string& path) {
     return result;
 }
 
+std::tuple<size_t, size_t, char, std::string> parse::stmt::world(std::list<Token> &lst) {
+    needTokenCount(lst, 5, "world");
+    pop(lst).mustBe(Token::Phrase, "world");
+    Token widthWorld   = pop(lst);   widthWorld.mustBe(Token::Number);
+    Token heightWorld  = pop(lst);  heightWorld.mustBe(Token::Number);
+    Token fillWorld    = pop(lst);    fillWorld.mustBe(Token::Symbol);
+    Token alphabetSize = pop(lst); alphabetSize.mustBe(Token::Number);
+
+    size_t width  = std::abs(std::get<int>(widthWorld.data));
+    size_t height = std::abs(std::get<int>(heightWorld.data));
+    if (width == 0 || height == 0) {
+        std::cerr << ErrorPrefix << "World size must be above zero\n";
+        std::exit(1);
+    }
+
+    size_t albSize = std::abs(std::get<int>(alphabetSize.data));
+    std::string alphabet;
+    if (albSize == 0) {
+        std::cerr << ErrorPrefix << "Alphabet size must be above zero\n";
+        std::exit(1);
+    }
+    for (size_t i = 0; i < albSize; i++) {
+        needTokenCount(lst, 1, "alphabet");
+        Token albCh = pop(lst); albCh.mustBe(Token::Symbol);
+        alphabet.push_back(std::get<char>(albCh.data));
+    }
+
+    return { width, height, std::get<char>(fillWorld.data), alphabet };
+}
+
+void parse::stmt::rules(std::list<Token>& lst, World& world) {
+    needTokenCount(lst, 3, "rules");
+    pop(lst).mustBe(Token::Phrase, "rules");
+    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule", "PatternRule"});
+    Token ruleBlock = pop(lst); ruleBlock.mustBe(Token::Phrase, {"state", "end"});
+    std::string ruleNameStr = ruleName.dataToStr();
+
+    if (ruleBlock.dataToStr() == "state") {
+        lst.push_front(ruleBlock);
+        do {
+            if (ruleNameStr == "CountRule")
+                world.addRule(parse::state::count(lst));
+            else if (ruleNameStr == "PatternRule")
+                world.addRule(parse::state::pattern(lst));
+        } while (needTokenCount(lst, 1, "rules") && (*lst.begin()).dataToStr() != "end");
+        (void)pop(lst);  // drop 'end' of rules
+    }
+}
+
+void parse::stmt::setup(std::list<Token>& lst, World* world) {
+    needTokenCount(lst, 2, "setup");
+    pop(lst).mustBe(Token::Phrase, "setup");
+    const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random"};
+    Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
+
+    void (*conCmd)(std::list<Token>&, ConsoleWorld&) = nullptr;
+    void (*guiCmd)(std::list<Token>&, GuiWorld&)     = nullptr;
+
+    while (commandTok.dataToStr() != "end") {
+        if (commandTok.dataToStr() == "cell") {
+            conCmd = parse::cmd::cell;
+            guiCmd = parse::cmd::cell;
+        } else if (commandTok.dataToStr() == "linex") {
+            conCmd = parse::cmd::linex;
+            guiCmd = parse::cmd::linex;
+        } else if (commandTok.dataToStr() == "liney") {
+            conCmd = parse::cmd::liney;
+            guiCmd = parse::cmd::liney;
+        } else if (commandTok.dataToStr() == "rect") {
+            conCmd = parse::cmd::rect;
+            guiCmd = parse::cmd::rect;
+        } else if (commandTok.dataToStr() == "pattern") {
+            conCmd = parse::cmd::pattern;
+            guiCmd = parse::cmd::pattern;
+        } else if (commandTok.dataToStr() == "random") {
+            conCmd = parse::cmd::random;
+            guiCmd = parse::cmd::random;
+        }
+
+        if (ConsoleWorld* wrld = dynamic_cast<ConsoleWorld*>(world))
+            conCmd(lst, *wrld);
+        else if (GuiWorld* wrld = dynamic_cast<GuiWorld*>(world))
+            guiCmd(lst, *wrld);
+        else {
+            std::cerr << ErrorPrefix << "unknown world type\n";
+            std::exit(1);
+        }
+
+        needTokenCount(lst, 1, "setup");
+        commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
+    }
+}
+
 std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
     needTokenCount(lst, 5, "state");
     pop(lst).mustBe(Token::Phrase, "state");

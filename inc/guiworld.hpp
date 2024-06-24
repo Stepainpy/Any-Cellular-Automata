@@ -5,19 +5,20 @@
 #include <memory>
 #include <list>
 
+#include "world.hpp"
+
 #include <raylib/raylib.h>
 #include "rules.hpp"
 #include "token.hpp"
 #include "guiset.hpp"
 
-class GuiWorld {
+class GuiWorld : public World {
 public:
     void update();
     void display(bool viewIters) const;
 
     char getCell(size_t x, size_t y);
     char getCell(size_t i);
-
     char getCell_FS(size_t x, size_t y);
     char getCell_FS(size_t i);
 
@@ -29,7 +30,7 @@ public:
     size_t compressInWidth(size_t x) const;
     size_t compressInHeight(size_t y) const;
 
-    void addRule(std::unique_ptr<Rule> rule);
+    void addRule(std::unique_ptr<Rule> rule) override;
 
     std::string getAlphabet() const;
     std::pair<int, int> getWindowSize() const;
