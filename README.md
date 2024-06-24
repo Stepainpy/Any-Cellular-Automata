@@ -31,7 +31,7 @@ As console app
 ```
 
 As graphich app (use [Raylib](https://github.com/raysan5/raylib))
-```
+``` console
 ./aca worlds/gol.world worlds/gui/gol.json
 ```
 For toggle viewing iteration count need press key `F3` (only gui version)
