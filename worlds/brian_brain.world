@@ -1,0 +1,7 @@
+world 80 80 '.' 3 '.' '*' '#'
+rules CountRule
+    state '.' to '#' if '#' may 2 end
+    state '#' to '*' if '.' nomay '*' nomay '#' nomay end
+    state '*' to '.' if '.' nomay '*' nomay '#' nomay end
+end
+setup random 0 0 80 80 end
