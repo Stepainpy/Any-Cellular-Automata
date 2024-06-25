@@ -7,7 +7,7 @@ rules <ruleName: Rule (CountRule or PatternRule)>
         ...
 
         ; PatternRule state
-        '.' ',' any '.' any any any ',' any  ; respectively equal NW N NE W O E SW S SE
+        '.' ',' any '.' any any ',' any  ; respectively equal NW N NE W E SW S SE cells
     end
     ...
 end

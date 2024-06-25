@@ -238,7 +238,7 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
 }
 
 std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
-    needTokenCount(lst, 15, "state");
+    needTokenCount(lst, 14, "state");
     pop(lst).mustBe(Token::Phrase, "state");
     Token beforeChar = pop(lst); beforeChar.mustBe(Token::Symbol);
     pop(lst).mustBe(Token::Phrase, "to");
@@ -246,7 +246,7 @@ std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
     pop(lst).mustBe(Token::Phrase, "if");
     
     std::string pattern;
-    for (size_t i = 0; i < 9; i++) {
+    for (size_t i = 0; i < 8; i++) {
         Token patPt = pop(lst);
 
         switch (patPt.type) {
@@ -265,6 +265,7 @@ std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
             } break;
         }
     }
+    pattern.insert(4, 1, std::get<char>(beforeChar.data));
 
     pop(lst).mustBe(Token::Phrase, "end");
     return std::make_unique<PatternRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data), pattern);

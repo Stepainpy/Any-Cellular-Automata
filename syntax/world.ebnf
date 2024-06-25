@@ -8,7 +8,7 @@ state_stmt = "state", symbol, "to", symbol, "if", (may_stmt, {may_stmt}|pattern_
 may_stmt = symbol, ("may"|"nomay"), {number};
 pattern_stmt =
 (symbol|"any"), (symbol|"any"), (symbol|"any"),
-(symbol|"any"), (symbol|"any"), (symbol|"any"),
+(symbol|"any"),                 (symbol|"any"),
 (symbol|"any"), (symbol|"any"), (symbol|"any");
 
 setup_stmt = "setup", {command}, "end";

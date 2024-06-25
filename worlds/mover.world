@@ -3,69 +3,69 @@ world 80 30 ' ' 1 ' '
 ; work of "CountRule" and the "random" function
 rules PatternRule
     ; > righter
-    state '>' to ' ' if any any any any '>' ' ' any any any end
-    state ' ' to '>' if any any any '>' ' ' any any any any end
+    state '>' to ' ' if any any any any ' ' any any any end
+    state ' ' to '>' if any any any '>' any any any any end
     ; < lefter
-    state '<' to ' ' if any any any ' ' '<' any any any any end
-    state ' ' to '<' if any any any any ' ' '<' any any any end
+    state '<' to ' ' if any any any ' ' any any any any end
+    state ' ' to '<' if any any any any '<' any any any end
     ; ^ upper
-    state '^' to ' ' if any ' ' any any '^' any any any any end
-    state ' ' to '^' if any any any any ' ' any any '^' any end
+    state '^' to ' ' if any ' ' any any any any any any end
+    state ' ' to '^' if any any any any any any '^' any end
     ; v downer
-    state 'v' to ' ' if any any any any 'v' any any ' ' any end
-    state ' ' to 'v' if any 'v' any any ' ' any any any any end
+    state 'v' to ' ' if any any any any any any ' ' any end
+    state ' ' to 'v' if any 'v' any any any any any any end
 
     ; # stopers
-    state '>' to '#' if any any any any '>' '#' any any any end
-    state '<' to '#' if any any any '#' '<' any any any any end
-    state '^' to '#' if any '#' any any '^' any any any any end
-    state 'v' to '#' if any any any any 'v' any any '#' any end
+    state '>' to '#' if any any any any '#' any any any end
+    state '<' to '#' if any any any '#' any any any any end
+    state '^' to '#' if any '#' any any any any any any end
+    state 'v' to '#' if any any any any any any '#' any end
 
     ; M mirror
-    state '>' to '<' if any any any any '>' 'M' any any any end
-    state '<' to '>' if any any any 'M' '<' any any any any end
-    state '^' to 'v' if any 'M' any any '^' any any any any end
-    state 'v' to '^' if any any any any 'v' any any 'M' any end
+    state '>' to '<' if any any any any 'M' any any any end
+    state '<' to '>' if any any any 'M' any any any any end
+    state '^' to 'v' if any 'M' any any any any any any end
+    state 'v' to '^' if any any any any any any 'M' any end
 
     ; R rotate right
-    state '>' to 'v' if any any any any '>' 'R' any any any end
-    state 'v' to '<' if any any any any 'v' any any 'R' any end
-    state '<' to '^' if any any any 'R' '<' any any any any end
-    state '^' to '>' if any 'R' any any '^' any any any any end
+    state '>' to 'v' if any any any any 'R' any any any end
+    state 'v' to '<' if any any any any any any 'R' any end
+    state '<' to '^' if any any any 'R' any any any any end
+    state '^' to '>' if any 'R' any any any any any any end
     ; L rotate left
-    state '>' to '^' if any any any any '>' 'L' any any any end
-    state '^' to '<' if any 'L' any any '^' any any any any end
-    state '<' to 'v' if any any any 'L' '<' any any any any end
-    state 'v' to '>' if any any any any 'v' any any 'L' any end
+    state '>' to '^' if any any any any 'L' any any any end
+    state '^' to '<' if any 'L' any any any any any any end
+    state '<' to 'v' if any any any 'L' any any any any end
+    state 'v' to '>' if any any any any any any 'L' any end
 
     ; D righter's divider
-    state ' ' to '^' if any any any any ' ' any any '>' 'D' end
-    state ' ' to 'v' if any '>' 'D' any ' ' any any any any end
-    state '>' to ' ' if any any any any '>' 'D' any any any end
+    state ' ' to '^' if any any any any any any '>' 'D' end
+    state ' ' to 'v' if any '>' 'D' any any any any any end
+    state '>' to ' ' if any any any any 'D' any any any end
     ; D lefter's divider
-    state ' ' to '^' if any any any any ' ' any 'D' '<' any end
-    state ' ' to 'v' if 'D' '<' any any ' ' any any any any end
-    state '<' to ' ' if any any any 'D' '<' any any any any end
+    state ' ' to '^' if any any any any any 'D' '<' any end
+    state ' ' to 'v' if 'D' '<' any any any any any any end
+    state '<' to ' ' if any any any 'D' any any any any end
     ; D upper's divider
-    state ' ' to '>' if 'D' any any '^' ' ' any any any any end
-    state ' ' to '<' if any any 'D' any ' ' '^' any any any end
-    state '^' to ' ' if any 'D' any any '^' any any any any end
+    state ' ' to '>' if 'D' any any '^' any any any any end
+    state ' ' to '<' if any any 'D' any '^' any any any end
+    state '^' to ' ' if any 'D' any any any any any any end
     ; D downer's divider
-    state ' ' to '>' if any any any 'v' ' ' any 'D' any any end
-    state ' ' to '<' if any any any any ' ' 'v' any any 'D' end
-    state 'v' to ' ' if any any any any 'v' any any 'D' any end
+    state ' ' to '>' if any any any 'v' any 'D' any any end
+    state ' ' to '<' if any any any any 'v' any any 'D' end
+    state 'v' to ' ' if any any any any any any 'D' any end
 
     ; S spawner
-    state ' ' to '>' if any any any 'S' ' ' any any any any end
-    state ' ' to '<' if any any any any ' ' 'S' any any any end
-    state ' ' to '^' if any any any any ' ' any any 'S' any end
-    state ' ' to 'v' if any 'S' any any ' ' any any any any end
+    state ' ' to '>' if any any any 'S' any any any any end
+    state ' ' to '<' if any any any any 'S' any any any end
+    state ' ' to '^' if any any any any any any 'S' any end
+    state ' ' to 'v' if any 'S' any any any any any any end
 
     ; T trash
-    state '>' to ' ' if any any any any '>' 'T' any any any end
-    state '<' to ' ' if any any any 'T' '<' any any any any end
-    state '^' to ' ' if any 'T' any any '^' any any any any end
-    state 'v' to ' ' if any any any any 'v' any any 'T' any end
+    state '>' to ' ' if any any any any 'T' any any any end
+    state '<' to ' ' if any any any 'T' any any any any end
+    state '^' to ' ' if any 'T' any any any any any any end
+    state 'v' to ' ' if any any any any any any 'T' any end
 end
 setup
     cell 'S' 15 15
