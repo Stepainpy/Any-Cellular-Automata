@@ -22,5 +22,7 @@ setup
     liney '.' <x: int> <y0: int> <y1: int>
     rect  '.' <x: int> <y: int> <width: int> <height: int>
     pattern <x: int> <y: int> <width: int> <height: int> '.' ... width*height ... '.'
+    ; in pattern maybe symbol or word 'any'. 'any' set "transparent" for pattern.
+    ; it is used when it is necessary to save the cells of the world
     random <x: int> <y: int> <width: int> <height: int>
 end

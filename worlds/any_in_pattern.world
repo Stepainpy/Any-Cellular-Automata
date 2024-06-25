@@ -1,0 +1,21 @@
+; This world is for demonstrating the possibilities
+world 80 30 '.' 2 '.' '#'
+rules CountRule end
+setup
+    rect '#' 30 15 2 2
+    pattern 28 13 6 6
+        '#' '#' '#' '#' '#' '#'
+        '#' '.' '.' '.' '.' '#'
+        '#' '.' '.' '.' '.' '#'
+        '#' '.' '.' '.' '.' '#'
+        '#' '.' '.' '.' '.' '#'
+        '#' '#' '#' '#' '#' '#'
+    rect '#' 40 15 2 2
+    pattern 38 13 6 6
+        '#' '#' '#' '#' '#' '#'
+        '#' any any any any '#'
+        '#' any any any any '#'
+        '#' any any any any '#'
+        '#' any any any any '#'
+        '#' '#' '#' '#' '#' '#'
+end

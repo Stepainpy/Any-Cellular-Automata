@@ -23,7 +23,7 @@ liney_cmd = "liney", symbol, number, number, number;
 (*                   char    x       y       width   height *)
 rect_cmd  = "rect",  symbol, number, number, number, number;
 (*                       x       y       width   height  chars (need width * height) *)
-pattern_cmd = "pattern", number, number, number, number, symbol, {symbol};
+pattern_cmd = "pattern", number, number, number, number, (symbol|"any"), {(symbol|"any")};
 (*                     x       y       width   height *)
 random_cmd = "random", number, number, number, number;
 

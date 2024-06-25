@@ -378,17 +378,32 @@ void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world) {
     std::string pattern;
     needTokenCount(lst, patternLength, "pattern command chars");
     for (size_t i = 0; i < patternLength; i++) {
-        Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
-        pattern.push_back(std::get<char>(chTok.data));
+        Token chTok = pop(lst);
+        switch (chTok.type) {
+            case Token::Symbol:
+                pattern.push_back(std::get<char>(chTok.data));
+            break;
+            case Token::Phrase: {
+                chTok.mustBe(Token::Phrase, "any");
+                pattern.push_back('\0');
+            } break;
+            default: {
+                std::cerr << ErrorPrefix << chTok.loc
+                << "In pattern excepted \"symbol\" or `any`, but received `"
+                << chTok.dataToStr() << "`\n";
+                std::exit(1);
+            } break;
+        }
     }
 
     for (size_t row = 0; row < h; row++) {
         for (size_t i = 0; i < w; i++) {
             size_t ex = world.compressInWidth(x + i);
             size_t ey = world.compressInHeight(y + row);
-            char c = pattern[row * w + i];
-            world.getCell(ex, ey) = c;
-            world.getCell_FS(ex, ey) = c;
+            if (char c = pattern[row * w + i]) {
+                world.getCell(ex, ey) = c;
+                world.getCell_FS(ex, ey) = c;
+            }
         }
     }
 }
@@ -530,17 +545,32 @@ void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world) {
     std::string pattern;
     needTokenCount(lst, patternLength, "pattern command chars");
     for (size_t i = 0; i < patternLength; i++) {
-        Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
-        pattern.push_back(std::get<char>(chTok.data));
+        Token chTok = pop(lst);
+        switch (chTok.type) {
+            case Token::Symbol:
+                pattern.push_back(std::get<char>(chTok.data));
+            break;
+            case Token::Phrase: {
+                chTok.mustBe(Token::Phrase, "any");
+                pattern.push_back('\0');
+            } break;
+            default: {
+                std::cerr << ErrorPrefix << chTok.loc
+                << "In pattern excepted \"symbol\" or `any`, but received `"
+                << chTok.dataToStr() << "`\n";
+                std::exit(1);
+            } break;
+        }
     }
 
     for (size_t row = 0; row < h; row++) {
         for (size_t i = 0; i < w; i++) {
             size_t ex = world.compressInWidth(x + i);
             size_t ey = world.compressInHeight(y + row);
-            char c = pattern[row * w + i];
-            world.setCell(c, ex, ey);
-            world.setCell_FS(c, ex, ey);
+            if (char c = pattern[row * w + i]) {
+                world.setCell(c, ex, ey);
+                world.setCell_FS(c, ex, ey);
+            }
         }
     }
 }
