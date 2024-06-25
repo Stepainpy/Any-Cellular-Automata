@@ -98,7 +98,7 @@ setup
 end
 ```
 
-Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world)  
+Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world), [B2/S](worlds/seeds.world)  
 For gui use [gol.json](worlds/gui/gol.json)
 
 ## TODO
