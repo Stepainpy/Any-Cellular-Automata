@@ -11,6 +11,7 @@ This program allows you to create cellular automata based on a given world file.
   - [As work may statement](#as-work-may-statements)
 - [Json gui setting](#json-gui-setting)
 - [Modifying 'Game of life' rule](#modifying-game-of-life-rule)
+- [Implemented automata](#implemented-automata)
 - [Todo](#todo)
 
 ## Quick start
@@ -98,8 +99,23 @@ setup
 end
 ```
 
-Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world), [B2/S](worlds/seeds.world)  
+Exapmles: [B3/S23](worlds/gol.world), [B35678/S5678](worlds/diamoeba.world), [B2/S](worlds/seeds.world), [B3678/S34678](worlds/day_and_night.world)  
 For gui use [gol.json](worlds/gui/gol.json)
+
+## Implemented automata
+
+- [Conway's Game of Life](worlds/gol.world), [Wikipedia](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+  - [with tail cells](worlds/gol_with_tail.world)
+- [Life-like cellular automaton](https://en.wikipedia.org/wiki/Life-like_cellular_automaton)
+  - [Day and Night](worlds/day_and_night.world), [Wikipedia](https://en.wikipedia.org/wiki/Day_and_Night_(cellular_automaton))
+  - [Diamoeba](worlds/diamoeba.world)
+  - [Seeds](worlds/seeds.world), [Wikipedia](https://en.wikipedia.org/wiki/Seeds_(cellular_automaton))
+- [Brian's Brain](worlds/brian_brain.world), [Wikipedia](https://en.wikipedia.org/wiki/Brian%27s_Brain)
+- Langton's ant, [Wikipedia](https://en.wikipedia.org/wiki/Langton%27s_ant)
+  - [69 x 69](worlds/langton_ant.world)
+  - [201 x 201](worlds/langton_ant_big.world)
+- [Wireworld](worlds/wireworld.world), [Wikipedia](https://en.wikipedia.org/wiki/Wireworld)
+- [Belousov–Zhabotinsky reaction (simple)](worlds/reactionBZ.world), [Wikipedia](https://en.wikipedia.org/wiki/Belousov–Zhabotinsky_reaction)
 
 ## TODO
 
