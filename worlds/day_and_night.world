@@ -1,0 +1,21 @@
+world 80 30 '.' 2 '.' '#'
+rules CountRule
+    state '.' to '#' if '#' may 3 6 7 8 end
+    state '#' to '.' if '#' nomay 3 4 6 7 8 end
+end
+setup
+    ; invert second half
+    rect '#' 40 0 40 30
+    liney '#' 0 0 1    liney '.' 40 0 1
+    liney '#' 0 4 5    liney '.' 40 4 5
+    liney '#' 0 8 9    liney '.' 40 8 9
+    liney '#' 0 12 13  liney '.' 40 12 13
+    liney '#' 0 16 17  liney '.' 40 16 17
+    liney '#' 0 20 21  liney '.' 40 20 21
+    liney '#' 0 24 25  liney '.' 40 24 25
+    liney '#' 0 28 29  liney '.' 40 28 29
+
+    ; set start state
+    rect '#' 14 9 10 10
+    rect '.' 56 9 10 10
+end
