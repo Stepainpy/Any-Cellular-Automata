@@ -40,8 +40,8 @@ For toggle viewing iteration count need press key `F3`
 
 ## World file syntax
 
-Words, numbers and symbols separated by spacing symbols (space, tab, new line and etc.).  
-Single line comment start by `;`. See the other syntax in the [EBNF](syntax/world.ebnf) and [example file](syntax/example.txt)
+Words, numbers and symbols separated by spacing symbols (space, tab, new line and etc.), Tabulation and line feed it does not matter.  
+See the other syntax in the [EBNF](syntax/world.ebnf), [example file](syntax/example.txt) and [documentation](doc/statements.md).
 
 ### As work may statements
 
@@ -121,4 +121,4 @@ For gui use [gol.json](worlds/gui/gol.json)
 
 - [x] Add pattern rule
 - [x] Add comments in world file
-- [ ] Add define statement for symbols
+- [x] Add alias statement for symbols

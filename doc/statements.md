@@ -4,6 +4,7 @@
 
 ```
 <world statement>
+<alias statement>
 <rules statement>
 <setup statement>
 ```
@@ -23,6 +24,31 @@ Arguments
 |   fill-char   | `symbol` | start fill char                                                                                           |
 | alphabet-size | `number` | size alphabet for world                                                                                   |
 | alphabet-char | `symbol` | sequence symbols with <br> length equal `alphabet-size` <br> (view [example](../worlds/reactionBZ.world)) |
+
+## Alias statement
+
+Syntax
+```
+alias
+    <set statement>
+    ...
+end
+```
+
+Maybe empty
+
+## Set statement
+
+Syntax
+```
+set <alias-name> <alias-value>
+```
+
+Arguments
+|    Name     |   Type   | Description |
+| :---------: | :------: | :---------- |
+| alias-name  | `phrase` | alias name  |
+| alias-value | `symbol` | alias value |
 
 ## Rules statement
 
@@ -55,10 +81,10 @@ state <before-char> to <after-char> if <pattern statement> end
 ```
 
 Arguments
-|    Name     |   Type   | Description                     |
-| :---------: | :------: | :------------------------------ |
-| before-char | `symbol` | the symbol that will be changed |
-| after-char  | `symbol` | The symbol he will become       |
+|    Name     |         Type         | Description                                  |
+| :---------: | :------------------: | :------------------------------------------- |
+| before-char | `symbol`<br>`phrase` | the symbol that will be changed, maybe alias |
+| after-char  | `symbol`<br>`phrase` | The symbol he will become, maybe alias       |
 
 ## May statement
 
@@ -72,10 +98,10 @@ or
 ```
 
 Arguments
-|   Name    |   Type   | Description                                    |
-| :-------: | :------: | :--------------------------------------------- |
-| need-char | `symbol` | requiritur symbol                              |
-| quantity  | `number` | set of maybe count neighboors, <br> set maybe empty |
+|   Name    |         Type         | Description                                         |
+| :-------: | :------------------: | :-------------------------------------------------- |
+| need-char | `symbol`<br>`phrase` | requiritur symbol or alias                          |
+| quantity  |       `number`       | set of maybe count neighboors, <br> set maybe empty |
 
 if is `nomay`, then set of maybe count neighboors equal
 $$
@@ -93,9 +119,9 @@ Syntax
 ```
 
 Argument
-|     Name     |         Type         | Description                                                                                |
-| :----------: | :------------------: | :----------------------------------------------------------------------------------------- |
-| pattern-char | `symbol`<br>`phrase` | maybe set via symbol or keyword `any` therefore, <br> it doesn't matter what the symbol is |
+|     Name     |         Type         | Description                                                                                         |
+| :----------: | :------------------: | :-------------------------------------------------------------------------------------------------- |
+| pattern-char | `symbol`<br>`phrase` | maybe set via symbol or keyword `any` or alias therefore, <br> it doesn't matter what the symbol is |
 
 ## Setup statement
 

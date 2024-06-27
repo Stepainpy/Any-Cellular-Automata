@@ -29,5 +29,6 @@ struct Token {
     std::string dataToStr() const;
     bool mustBe(TokenType _type) const;
     bool mustBe(TokenType _type, const std::string& str) const;
+    bool mustBe(const std::initializer_list<TokenType>& _types) const;
     bool mustBe(TokenType _type, const std::initializer_list<std::string>& str) const;
 };

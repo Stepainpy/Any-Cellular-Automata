@@ -1,5 +1,6 @@
 #include "guiworld.hpp"
 #include <iostream>
+#include <iterator>
 #include <format>
 
 #include "str_prefixs.hpp"
@@ -25,11 +26,12 @@ const std::pair<long long, long long> deltas[8] = {
 GuiWorld buildGuiWorld(std::list<Token>& lst, const std::string& settingPath) {
     const auto [width, height, fillChar, alphabet] = parse::stmt::world(lst);
     GuiSetting setting = parse::guiSet(settingPath);
-    
     GuiWorld resultWorld(width, height, fillChar, setting);
     resultWorld.m_alphabet = alphabet;
-    parse::stmt::rules(lst,  resultWorld);
-    parse::stmt::setup(lst, &resultWorld);
+
+    const auto aliases = parse::stmt::alias(lst);
+    parse::stmt::rules(lst,  resultWorld, aliases);
+    parse::stmt::setup(lst, &resultWorld, aliases);
     
     return resultWorld;
 }
@@ -73,9 +75,11 @@ void GuiWorld::update() {
         }
     }
 
-    for (size_t i = 0; i < N; i++) {
-        m_world[i] = m_farSideWorld[i];
-    }
+    std::copy(
+        std::next(m_farSideWorld.get(), 0),
+        std::next(m_farSideWorld.get(), N),
+        std::next(m_world.get(), 0)
+    );
 }
 
 void GuiWorld::display(bool viewIter) const {

@@ -4,6 +4,7 @@
 #include <format>
 #include <tuple>
 #include <list>
+#include <map>
 
 #include "world.hpp"
 #include "conworld.hpp"
@@ -11,33 +12,31 @@
 #include "token.hpp"
 #include "rules.hpp"
 
-Token pop(std::list<Token>& lst);
-bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string& stmt);
-
 namespace parse {
     GuiSetting guiSet(const std::string& path);
     namespace stmt {
         std::tuple<size_t, size_t, char, std::string> world(std::list<Token>& lst);
-        void rules(std::list<Token>& lst, World& world);
-        void setup(std::list<Token>& lst, World* world);
+        std::map<std::string, char> alias(std::list<Token>& lst);
+        void rules(std::list<Token>& lst, World& world, const std::map<std::string, char>& aliases);
+        void setup(std::list<Token>& lst, World* world, const std::map<std::string, char>& aliases);
     }
     namespace cmd {
-        void cell   (std::list<Token>& lst, ConsoleWorld& world);
-        void linex  (std::list<Token>& lst, ConsoleWorld& world);
-        void liney  (std::list<Token>& lst, ConsoleWorld& world);
-        void rect   (std::list<Token>& lst, ConsoleWorld& world);
-        void pattern(std::list<Token>& lst, ConsoleWorld& world);
-        void random (std::list<Token>& lst, ConsoleWorld& world);
+        void cell   (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void linex  (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void liney  (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void rect   (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void pattern(std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void random (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
 
-        void cell   (std::list<Token>& lst, GuiWorld& world);
-        void linex  (std::list<Token>& lst, GuiWorld& world);
-        void liney  (std::list<Token>& lst, GuiWorld& world);
-        void rect   (std::list<Token>& lst, GuiWorld& world);
-        void pattern(std::list<Token>& lst, GuiWorld& world);
-        void random (std::list<Token>& lst, GuiWorld& world);
+        void cell   (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void linex  (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void liney  (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void rect   (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void pattern(std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void random (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
     }
     namespace state {
-        std::unique_ptr<CountRule> count(std::list<Token>& lst);
-        std::unique_ptr<PatternRule> pattern(std::list<Token>& lst);
+        std::unique_ptr<CountRule>   count  (std::list<Token>& lst, const std::map<std::string, char>& aliases);
+        std::unique_ptr<PatternRule> pattern(std::list<Token>& lst, const std::map<std::string, char>& aliases);
     }
 }

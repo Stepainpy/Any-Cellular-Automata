@@ -6,6 +6,12 @@
 #include <nlohmann/json.hpp>
 #include "str_prefixs.hpp"
 
+std::set<std::string> keywords = {
+    "world", "alias", "rules", "setup", "end",             // important keywords
+    "state", "to", "if", "may", "nomay", "any", "set",     // secondary keywords
+    "cell", "linex", "liney", "rect", "pattern", "random"  // commands
+};
+
 Token pop(std::list<Token>& lst) {
     Token t = *lst.begin();
     lst.erase(lst.begin());
@@ -18,6 +24,24 @@ bool needTokenCount(const std::list<Token>& lst, size_t count, const std::string
         std::exit(1);
     }
     return true;
+}
+
+char extractMaybeAlias(const Token& token, const std::map<std::string, char>& aliases) {
+    switch (token.type) {
+        case Token::Symbol:
+            return std::get<char>(token.data);
+        case Token::Phrase: {
+            if (!aliases.contains(token.dataToStr())) {
+                std::cerr << ErrorPrefix << token.loc << "not found alias name `" << token.dataToStr() << "`\n";
+                std::exit(1);
+            }
+            return aliases.at(token.dataToStr());
+        } break;
+        default: {
+            std::cerr << ErrorPrefix << token.loc << "Unexpected type in extract alias value\n";
+            std::exit(1);
+        }
+    }
 }
 
 GuiSetting parse::guiSet(const std::string& path) {
@@ -129,33 +153,65 @@ std::tuple<size_t, size_t, char, std::string> parse::stmt::world(std::list<Token
     return { width, height, std::get<char>(fillWorld.data), alphabet };
 }
 
-void parse::stmt::rules(std::list<Token>& lst, World& world) {
+std::map<std::string, char> parse::stmt::alias(std::list<Token>& lst) {
+    needTokenCount(lst, 2, "alias");
+    pop(lst).mustBe(Token::Phrase, "alias");
+    Token maybeEnd = pop(lst); maybeEnd.mustBe(Token::Phrase, {"end", "set"});
+
+    std::map<std::string, char> resultAliases;
+
+    while (maybeEnd.dataToStr() != "end") {
+        lst.push_front(maybeEnd);
+        needTokenCount(lst, 3, "alias set");
+        pop(lst).mustBe(Token::Phrase, "set");
+        Token aliasName  = pop(lst); aliasName.mustBe(Token::Phrase);
+        Token aliasValue = pop(lst); aliasValue.mustBe(Token::Symbol);
+
+        if (keywords.contains(aliasName.dataToStr())) {
+            std::cerr << ErrorPrefix << aliasName.loc << "using a keyword for an alias name\n";
+            std::exit(1);
+        }
+        if (resultAliases.contains(aliasName.dataToStr())) {
+            std::cerr << ErrorPrefix << aliasName.loc << "reassiging alias\n";
+            std::exit(1);
+        }
+
+        resultAliases[aliasName.dataToStr()] = std::get<char>(aliasValue.data);
+
+        needTokenCount(lst, 1, "alias");
+        maybeEnd = pop(lst);
+    }
+
+    return resultAliases;
+}
+
+void parse::stmt::rules(std::list<Token>& lst, World& world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "rules");
     pop(lst).mustBe(Token::Phrase, "rules");
     Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule", "PatternRule"});
     Token ruleBlock = pop(lst); ruleBlock.mustBe(Token::Phrase, {"state", "end"});
     std::string ruleNameStr = ruleName.dataToStr();
 
-    if (ruleBlock.dataToStr() == "state") {
+    if (ruleBlock.dataToStr() != "end") {
         lst.push_front(ruleBlock);
         do {
             if (ruleNameStr == "CountRule")
-                world.addRule(parse::state::count(lst));
+                world.addRule(parse::state::count(lst, aliases));
             else if (ruleNameStr == "PatternRule")
-                world.addRule(parse::state::pattern(lst));
+                world.addRule(parse::state::pattern(lst, aliases));
         } while (needTokenCount(lst, 1, "rules") && (*lst.begin()).dataToStr() != "end");
         (void)pop(lst);  // drop 'end' of rules
     }
 }
 
-void parse::stmt::setup(std::list<Token>& lst, World* world) {
+void parse::stmt::setup(std::list<Token>& lst, World* world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 2, "setup");
     pop(lst).mustBe(Token::Phrase, "setup");
     const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random"};
     Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
 
-    void (*conCmd)(std::list<Token>&, ConsoleWorld&) = nullptr;
-    void (*guiCmd)(std::list<Token>&, GuiWorld&)     = nullptr;
+    void (*conCmd)(std::list<Token>&, ConsoleWorld&, const std::map<std::string, char>& aliases) = nullptr;
+    void (*guiCmd)(std::list<Token>&, GuiWorld&,     const std::map<std::string, char>& aliases) = nullptr;
 
     while (commandTok.dataToStr() != "end") {
         if (commandTok.dataToStr() == "cell") {
@@ -179,9 +235,9 @@ void parse::stmt::setup(std::list<Token>& lst, World* world) {
         }
 
         if (ConsoleWorld* wrld = dynamic_cast<ConsoleWorld*>(world))
-            conCmd(lst, *wrld);
+            conCmd(lst, *wrld, aliases);
         else if (GuiWorld* wrld = dynamic_cast<GuiWorld*>(world))
-            guiCmd(lst, *wrld);
+            guiCmd(lst, *wrld, aliases);
         else {
             std::cerr << ErrorPrefix << "unknown world type\n";
             std::exit(1);
@@ -192,21 +248,23 @@ void parse::stmt::setup(std::list<Token>& lst, World* world) {
     }
 }
 
-std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
+std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 5, "state");
     pop(lst).mustBe(Token::Phrase, "state");
-    Token beforeChar = pop(lst); beforeChar.mustBe(Token::Symbol);
+    Token beforeChar = pop(lst); beforeChar.mustBe({Token::Symbol, Token::Phrase});
     pop(lst).mustBe(Token::Phrase, "to");
-    Token afterChar = pop(lst); afterChar.mustBe(Token::Symbol);
+    Token afterChar = pop(lst); afterChar.mustBe({Token::Symbol, Token::Phrase});
     pop(lst).mustBe(Token::Phrase, "if");
 
-    auto rule = std::make_unique<CountRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data));
+    char beCh = extractMaybeAlias(beforeChar, aliases);
+    char afCh = extractMaybeAlias(afterChar,  aliases);
+    auto rule = std::make_unique<CountRule>(beCh, afCh);
 
     bool isEmptyIf = true;
     while (needTokenCount(lst, 1, "if") && (*lst.begin()).dataToStr() != "end") {
         isEmptyIf = false;
         needTokenCount(lst, 3, "may");
-        Token mayChar = pop(lst); mayChar.mustBe(Token::Symbol);
+        Token mayChar = pop(lst); mayChar.mustBe({Token::Symbol, Token::Phrase});
         Token mayType = pop(lst); mayType.mustBe(Token::Phrase, {"may", "nomay"});
         Token maybeEnd = pop(lst);
         bool isNoMay = mayType.dataToStr() == "nomay";
@@ -226,7 +284,8 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
             maybeEnd = pop(lst);
         }
 
-        rule->addSubRule(std::get<char>(mayChar.data), neighCnts);
+        char mayCh = extractMaybeAlias(mayChar, aliases);
+        rule->addSubRule(mayCh, neighCnts);
         if (maybeEnd.dataToStr() == "end")
             break;
         lst.push_front(maybeEnd);
@@ -237,13 +296,16 @@ std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst) {
     return rule;
 }
 
-std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
+std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 14, "state");
     pop(lst).mustBe(Token::Phrase, "state");
-    Token beforeChar = pop(lst); beforeChar.mustBe(Token::Symbol);
+    Token beforeChar = pop(lst); beforeChar.mustBe({Token::Symbol, Token::Phrase});
     pop(lst).mustBe(Token::Phrase, "to");
-    Token afterChar = pop(lst); afterChar.mustBe(Token::Symbol);
+    Token afterChar = pop(lst); afterChar.mustBe({Token::Symbol, Token::Phrase});
     pop(lst).mustBe(Token::Phrase, "if");
+
+    char beCh = extractMaybeAlias(beforeChar, aliases);
+    char afCh = extractMaybeAlias(afterChar,  aliases);
     
     std::string pattern;
     for (size_t i = 0; i < 8; i++) {
@@ -254,40 +316,42 @@ std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst) {
                 pattern.push_back(std::get<char>(patPt.data));
             break;
             case Token::Phrase: {
-                patPt.mustBe(Token::Phrase, "any");
-                pattern.push_back('\0');
+                if (patPt.dataToStr() == "any")
+                    pattern.push_back('\0');
+                else
+                    pattern.push_back(extractMaybeAlias(patPt, aliases));
             } break;
             default: {
                 std::cerr << ErrorPrefix << patPt.loc
-                << "In pattern excepted \"symbol\" or `any`, but received `"
+                << "In pattern excepted \"symbol\" or `any` or alias, but received `"
                 << patPt.dataToStr() << "`\n";
                 std::exit(1);
             } break;
         }
     }
-    pattern.insert(4, 1, std::get<char>(beforeChar.data));
+    pattern.insert(4, 1, beCh);
 
     pop(lst).mustBe(Token::Phrase, "end");
-    return std::make_unique<PatternRule>(std::get<char>(beforeChar.data), std::get<char>(afterChar.data), pattern);
+    return std::make_unique<PatternRule>(beCh, afCh, pattern);
 }
 
-void parse::cmd::cell(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::cell(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "cell command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
     Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
 
     size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
     size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
 
-    char c = std::get<char>(chTok.data);
+    char c = extractMaybeAlias(chTok, aliases);
     world.getCell(x, y) = c;
     world.getCell_FS(x, y) = c;
 }
 
-void parse::cmd::linex(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::linex(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "linex command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token x0Tok = pop(lst); x0Tok.mustBe(Token::Number);
     Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
     Token x1Tok = pop(lst); x1Tok.mustBe(Token::Number);
@@ -300,15 +364,15 @@ void parse::cmd::linex(std::list<Token> &lst, ConsoleWorld &world) {
         std::swap(x0, x1);
 
     for (size_t tx = x0; tx <= x1; tx++) {
-        char c = std::get<char>(chTok.data);
+        char c = extractMaybeAlias(chTok, aliases);
         world.getCell(tx, y) = c;
         world.getCell_FS(tx, y) = c;
     }
 }
 
-void parse::cmd::liney(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::liney(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "liney command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
     Token y0Tok = pop(lst); y0Tok.mustBe(Token::Number);
     Token y1Tok = pop(lst); y1Tok.mustBe(Token::Number);
@@ -321,15 +385,15 @@ void parse::cmd::liney(std::list<Token> &lst, ConsoleWorld &world) {
         std::swap(y0, y1);
 
     for (size_t ty = y0; ty <= y1; ty++) {
-        char c = std::get<char>(chTok.data);
+        char c = extractMaybeAlias(chTok, aliases);
         world.getCell(x, ty) = c;
         world.getCell_FS(x, ty) = c;
     }
 }
 
-void parse::cmd::rect(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::rect(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 5, "rect command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
     Token  yTok = pop(lst);  yTok.mustBe(Token::Number);
     Token  wTok = pop(lst);  wTok.mustBe(Token::Number);
@@ -350,14 +414,14 @@ void parse::cmd::rect(std::list<Token> &lst, ConsoleWorld &world) {
 
     for (size_t ty = y; ty <= ey; ty++) {
         for (size_t tx = x; tx <= ex; tx++) {
-            char c = std::get<char>(chTok.data);
+            char c = extractMaybeAlias(chTok, aliases);
             world.getCell(tx, ty) = c;
             world.getCell_FS(tx, ty) = c;
         }
     }
 }
 
-void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "pattern command");
     Token xTok = pop(lst); xTok.mustBe(Token::Number);
     Token yTok = pop(lst); yTok.mustBe(Token::Number);
@@ -384,12 +448,14 @@ void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world) {
                 pattern.push_back(std::get<char>(chTok.data));
             break;
             case Token::Phrase: {
-                chTok.mustBe(Token::Phrase, "any");
-                pattern.push_back('\0');
+                if (chTok.dataToStr() == "any")
+                    pattern.push_back('\0');
+                else
+                    pattern.push_back(extractMaybeAlias(chTok, aliases));
             } break;
             default: {
                 std::cerr << ErrorPrefix << chTok.loc
-                << "In pattern excepted \"symbol\" or `any`, but received `"
+                << "In pattern excepted \"symbol\" or `any` or alias, but received `"
                 << chTok.dataToStr() << "`\n";
                 std::exit(1);
             } break;
@@ -408,7 +474,8 @@ void parse::cmd::pattern(std::list<Token> &lst, ConsoleWorld &world) {
     }
 }
 
-void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world) {
+void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
+    (void)aliases;
     needTokenCount(lst, 4, "random command");
     Token xTok = pop(lst); xTok.mustBe(Token::Number);
     Token yTok = pop(lst); yTok.mustBe(Token::Number);
@@ -438,23 +505,23 @@ void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world) {
     }
 }
 
-void parse::cmd::cell(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::cell(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "cell command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
     Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
 
     size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
     size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
 
-    char c = std::get<char>(chTok.data);
+    char c = extractMaybeAlias(chTok, aliases);
     world.setCell(c, x, y);
     world.setCell_FS(c, x, y);
 }
 
-void parse::cmd::linex(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::linex(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "linex command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token x0Tok = pop(lst); x0Tok.mustBe(Token::Number);
     Token yTok  = pop(lst);  yTok.mustBe(Token::Number);
     Token x1Tok = pop(lst); x1Tok.mustBe(Token::Number);
@@ -467,15 +534,15 @@ void parse::cmd::linex(std::list<Token> &lst, GuiWorld &world) {
         std::swap(x0, x1);
 
     for (size_t tx = x0; tx <= x1; tx++) {
-        char c = std::get<char>(chTok.data);
+        char c = extractMaybeAlias(chTok, aliases);
         world.setCell(c, tx, y);
         world.setCell_FS(c, tx, y);
     }
 }
 
-void parse::cmd::liney(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::liney(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "liney command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token xTok  = pop(lst);  xTok.mustBe(Token::Number);
     Token y0Tok = pop(lst); y0Tok.mustBe(Token::Number);
     Token y1Tok = pop(lst); y1Tok.mustBe(Token::Number);
@@ -488,15 +555,15 @@ void parse::cmd::liney(std::list<Token> &lst, GuiWorld &world) {
         std::swap(y0, y1);
 
     for (size_t ty = y0; ty <= y1; ty++) {
-        char c = std::get<char>(chTok.data);
+        char c = extractMaybeAlias(chTok, aliases);
         world.setCell(c, x, ty);
         world.setCell_FS(c, x, ty);
     }
 }
 
-void parse::cmd::rect(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::rect(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 5, "rect command");
-    Token chTok = pop(lst); chTok.mustBe(Token::Symbol);
+    Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
     Token  xTok = pop(lst);  xTok.mustBe(Token::Number);
     Token  yTok = pop(lst);  yTok.mustBe(Token::Number);
     Token  wTok = pop(lst);  wTok.mustBe(Token::Number);
@@ -517,14 +584,14 @@ void parse::cmd::rect(std::list<Token> &lst, GuiWorld &world) {
 
     for (size_t ty = y; ty <= ey; ty++) {
         for (size_t tx = x; tx <= ex; tx++) {
-            char c = std::get<char>(chTok.data);
+            char c = extractMaybeAlias(chTok, aliases);
             world.setCell(c, tx, ty);
             world.setCell_FS(c, tx, ty);
         }
     }
 }
 
-void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 4, "pattern command");
     Token xTok = pop(lst); xTok.mustBe(Token::Number);
     Token yTok = pop(lst); yTok.mustBe(Token::Number);
@@ -551,8 +618,10 @@ void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world) {
                 pattern.push_back(std::get<char>(chTok.data));
             break;
             case Token::Phrase: {
-                chTok.mustBe(Token::Phrase, "any");
-                pattern.push_back('\0');
+                if (chTok.dataToStr() == "any")
+                    pattern.push_back('\0');
+                else
+                    pattern.push_back(extractMaybeAlias(chTok, aliases));
             } break;
             default: {
                 std::cerr << ErrorPrefix << chTok.loc
@@ -575,7 +644,8 @@ void parse::cmd::pattern(std::list<Token> &lst, GuiWorld &world) {
     }
 }
 
-void parse::cmd::random(std::list<Token> &lst, GuiWorld &world) {
+void parse::cmd::random(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
+    (void)aliases;
     needTokenCount(lst, 4, "random command");
     Token xTok = pop(lst); xTok.mustBe(Token::Number);
     Token yTok = pop(lst); yTok.mustBe(Token::Number);

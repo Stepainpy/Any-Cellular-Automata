@@ -3,6 +3,7 @@
 #include <iterator>
 #include <iostream>
 #include <format>
+#include <set>
 
 #include "str_prefixs.hpp"
 
@@ -50,6 +51,24 @@ bool Token::mustBe(TokenType _type, const std::string& str) const {
     } else if (_type == Phrase && dataToStr() != str) {
         std::cerr << ErrorPrefix << loc << std::format("Expected `{}`, but received `{}`\n", str, dataToStr());
         std::exit(1);
+    }
+    return true;
+}
+
+bool Token::mustBe(const std::initializer_list<TokenType>& _types) const {
+    std::set<TokenType> types = _types;
+    if (!types.contains(this->type)) {
+        std::string strTypes;
+        for (const auto& t : types) {
+            switch (t) {
+                case Token::Symbol: strTypes += "symbol or"; break;
+                case Token::Number: strTypes += "number or"; break;
+                case Token::Phrase: strTypes += "phrase or"; break;
+            }
+            strTypes.erase(strTypes.end() - 3, strTypes.end());
+            std::cerr << ErrorPrefix << loc << std::format("Expected \"{}\", but received `{}`\n", strTypes, dataToStr());
+            std::exit(1);
+        }
     }
     return true;
 }

@@ -18,11 +18,12 @@ const std::pair<long long, long long> deltas[8] = {
 
 ConsoleWorld buildConsoleWorld(std::list<Token>& lst) {
     const auto [width, height, fillChar, alphabet] = parse::stmt::world(lst);
-
     ConsoleWorld resultWorld(width, height, fillChar);
     resultWorld.m_alphabet = alphabet;
-    parse::stmt::rules(lst,  resultWorld);
-    parse::stmt::setup(lst, &resultWorld);
+
+    const auto aliases = parse::stmt::alias(lst);
+    parse::stmt::rules(lst,  resultWorld, aliases);
+    parse::stmt::setup(lst, &resultWorld, aliases);
     
     return resultWorld;
 }
