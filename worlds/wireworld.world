@@ -1,29 +1,31 @@
-world 80 30 '.' 4
-'.' ; none
-'*' ; wire
-'@' ; head
-'-' ; tail
+world 80 30 '.' 4 '.' '*' '@' '-'
+alias
+    set none '.'
+    set wire '*'
+    set head '@'
+    set tail '-'
+end
 rules CountRule
-    state '*' to '@' if '@' may 1 2 end ; if 1 or 2 head => wire -> head
-    state '@' to '-' if '.' nomay   end ; always            head -> tail
-    state '-' to '*' if '.' nomay   end ; always            tail -> wire
+    state wire to head if head may 1 2 end ; if 1 or 2 head => wire -> head
+    state head to tail if none nomay   end ; always            head -> tail
+    state tail to wire if none nomay   end ; always            tail -> wire
 end
 setup
     ; wire border
-    linex '*' 5 10 75
-    linex '*' 5 20 75
-    liney '*' 4 11 19
-    liney '*' 76 11 19
+    linex wire 5 10 75
+    linex wire 5 20 75
+    liney wire 4 11 19
+    liney wire 76 11 19
 
     ; diod
     pattern 35 9 2 3
-        '*' '*'
-        '.' '*'
-        '*' '*'
+        wire wire
+        none wire
+        wire wire
 
     ; between wire
-    liney '*' 40 10 20
+    liney wire 40 10 20
 
     ; start charge
-    cell '@' 5 10
+    cell head 5 10
 end

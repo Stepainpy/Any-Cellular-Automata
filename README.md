@@ -86,6 +86,7 @@ Template:
 world 80 30 '.' 2
 '.' ; dead
 '#' ; live
+alias end
 rules CountRule
     state '.' to '#' if '#' may
         ; numbers in 'B'
