@@ -1,55 +1,49 @@
 $
 This world special create for gui
 
-. - white
-# - black
 l,r,u,d - direction on white
 L,R,U,D - direction on black
 $
 
 world 201 201 '.' 2 '.' '#'
+alias
+    set white '.'
+    set black '#'
+end
 rules PatternRule
     ; delete previos ant
-    state 'l' to '#' if any any any any any any any any end
-    state 'r' to '#' if any any any any any any any any end
-    state 'u' to '#' if any any any any any any any any end
-    state 'd' to '#' if any any any any any any any any end
+    state 'l' to black if any any any any any any any any end
+    state 'r' to black if any any any any any any any any end
+    state 'u' to black if any any any any any any any any end
+    state 'd' to black if any any any any any any any any end
 
-    state 'L' to '.' if any any any any any any any any end
-    state 'R' to '.' if any any any any any any any any end
-    state 'U' to '.' if any any any any any any any any end
-    state 'D' to '.' if any any any any any any any any end
+    state 'L' to white if any any any any any any any any end
+    state 'R' to white if any any any any any any any any end
+    state 'U' to white if any any any any any any any any end
+    state 'D' to white if any any any any any any any any end
 
     $ to up $
-    ; white
-    state '.' to 'u' if any any any any any any 'l' any end
-    state '.' to 'u' if any any any any any any 'R' any end
-    ; black
-    state '#' to 'U' if any any any any any any 'l' any end
-    state '#' to 'U' if any any any any any any 'R' any end
+    state white to 'u' if any any any any any any 'l' any end
+    state white to 'u' if any any any any any any 'R' any end
+    state black to 'U' if any any any any any any 'l' any end
+    state black to 'U' if any any any any any any 'R' any end
 
     $ to down $
-    ; white
-    state '.' to 'd' if any 'r' any any any any any any end
-    state '.' to 'd' if any 'L' any any any any any any end
-    ; black
-    state '#' to 'D' if any 'r' any any any any any any end
-    state '#' to 'D' if any 'L' any any any any any any end
+    state white to 'd' if any 'r' any any any any any any end
+    state white to 'd' if any 'L' any any any any any any end
+    state black to 'D' if any 'r' any any any any any any end
+    state black to 'D' if any 'L' any any any any any any end
 
     $ to left $
-    ; white
-    state '.' to 'l' if any any any any 'U' any any any end
-    state '.' to 'l' if any any any any 'd' any any any end
-    ; black
-    state '#' to 'L' if any any any any 'U' any any any end
-    state '#' to 'L' if any any any any 'd' any any any end
+    state white to 'l' if any any any any 'U' any any any end
+    state white to 'l' if any any any any 'd' any any any end
+    state black to 'L' if any any any any 'U' any any any end
+    state black to 'L' if any any any any 'd' any any any end
 
     $ to right $
-    ; white
-    state '.' to 'r' if any any any 'u' any any any any end
-    state '.' to 'r' if any any any 'D' any any any any end
-    ; black
-    state '#' to 'R' if any any any 'u' any any any any end
-    state '#' to 'R' if any any any 'D' any any any any end
+    state white to 'r' if any any any 'u' any any any any end
+    state white to 'r' if any any any 'D' any any any any end
+    state black to 'R' if any any any 'u' any any any any end
+    state black to 'R' if any any any 'D' any any any any end
 end
 setup cell 'l' 100 100 end

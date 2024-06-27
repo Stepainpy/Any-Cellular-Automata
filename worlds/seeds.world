@@ -1,4 +1,5 @@
 world 80 80 '.' 2 '.' '#'
+alias end
 rules CountRule
     state '.' to '#' if '#' may 2 end
     state '#' to '.' if '#' nomay end

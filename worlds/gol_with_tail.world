@@ -1,4 +1,5 @@
 world 80 30 '.' 3 '.' ' ' '#'
+alias end
 rules CountRule
     state '.' to '#' if '#' may 3 end
     state ' ' to '#' if '#' may 3 end
