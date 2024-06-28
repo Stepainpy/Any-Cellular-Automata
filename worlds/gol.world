@@ -1,14 +1,13 @@
 world 80 30 '.' 2 '.' '#'
 alias end
 rules CountRule
-    state '.' to '#' if  ; birth if 3 neighbors
-        '#' may 3
-    end
-    state '#' to '.' if  ; dead if not 2 or 3 neighbors
-        '#' nomay 2 3
-    end
+    ; birth if 3 neighbors
+    state '.' to '#' if '#' may 3 end
+    ; dead if not 2 or 3 neighbors
+    state '#' to '.' if '#' nomay 2 3 end
 end
 setup
+    ; Gosper gun
     rect '#' 1 5 2 2
     rect '#' 35 3 2 2
     pattern 11 3 8 7
@@ -27,9 +26,12 @@ setup
         '#' '#' '.' '.' '.'
         '.' '.' '#' '.' '#'
         '.' '.' '.' '.' '#'
+    ; stopper
     pattern 69 26 4 4
         '#' '#' '.' '.'
         '#' '.' '.' '.'
         '.' '#' '#' '#'
         '.' '.' '.' '#'
+    ; blinker
+    linex '#' 7 20 16
 end

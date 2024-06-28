@@ -6,6 +6,7 @@ rules CountRule
     state '#' to ' ' if '#' nomay 2 3 end
 end
 setup
+    ; Gosper gun
     rect '#' 1 5 2 2
     rect '#' 35 3 2 2
     pattern 11 3 8 7
@@ -24,9 +25,12 @@ setup
         '#' '#' '.' '.' '.'
         '.' '.' '#' '.' '#'
         '.' '.' '.' '.' '#'
+    ; stopper
     pattern 69 26 4 4
         '#' '#' '.' '.'
         '#' '.' '.' '.'
         '.' '#' '#' '#'
         '.' '.' '.' '#'
+    ; blinker
+    linex '#' 7 20 16
 end
