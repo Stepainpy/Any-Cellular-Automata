@@ -1,32 +1,36 @@
-complete_world = world_stmt, rules_stmt, setup_stmt;
+complete_world = world_stmt, alias_stmt, rules_stmt, setup_stmt;
 
 (*                    width   height  fill    alsize  alchars ...*)
 world_stmt = "world", number, number, symbol, number, symbol, {symbol};
-
+alias_stmt = "alias", { set_stmt }, end;
 rules_stmt = "rules", ("CountRule"|"PatternRule"), { state_stmt }, "end";
-state_stmt = "state", symbol, "to", symbol, "if", (may_stmt, {may_stmt}|pattern_stmt), "end";
-may_stmt = symbol, ("may"|"nomay"), {number};
-pattern_stmt =
-(symbol|"any"), (symbol|"any"), (symbol|"any"),
-(symbol|"any"),                 (symbol|"any"),
-(symbol|"any"), (symbol|"any"), (symbol|"any");
-
 setup_stmt = "setup", {command}, "end";
+
+set_stmt = "set", phrase, symbol;
+state_stmt = "state", symOralias, "to", symOralias, "if", (may_stmt, {may_stmt}|pattern_stmt), "end";
+may_stmt = symOralias, ("may"|"nomay"), {number};
+pattern_stmt =
+(symOralias|"any"), (symOralias|"any"), (symOralias|"any"),
+(symOralias|"any"),                     (symOralias|"any"),
+(symOralias|"any"), (symOralias|"any"), (symOralias|"any");
+
 command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd | random_cmd;
 
-(*                   char    x       y *)
-cell_cmd  = "cell",  symbol, number, number;
-(*                   char    x0      y       x1 *)
-linex_cmd = "linex", symbol, number, number, number;
-(*                   char    x       y0      y1 *)
-liney_cmd = "liney", symbol, number, number, number;
-(*                   char    x       y       width   height *)
-rect_cmd  = "rect",  symbol, number, number, number, number;
+(*                   char        x       y *)
+cell_cmd  = "cell",  symOralias, number, number;
+(*                   char        x0      y       x1 *)
+linex_cmd = "linex", symOralias, number, number, number;
+(*                   char        x       y0      y1 *)
+liney_cmd = "liney", symOralias, number, number, number;
+(*                   char        x       y       width   height *)
+rect_cmd  = "rect",  symOralias, number, number, number, number;
 (*                       x       y       width   height  chars (need width * height) *)
-pattern_cmd = "pattern", number, number, number, number, (symbol|"any"), {(symbol|"any")};
+pattern_cmd = "pattern", number, number, number, number, (symOralias|"any"), {(symOralias|"any")};
 (*                     x       y       width   height *)
 random_cmd = "random", number, number, number, number;
 
+symOralias = symbol | phrase;
+phrase = char, { char };
 symbol = "'", ["\\"], char, "'";
 number = digit, {digit};
 digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";

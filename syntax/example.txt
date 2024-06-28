@@ -1,4 +1,8 @@
 world <width: int> <height: int> '.' <alphabet-size: int> '.' '#' ...
+alias
+    set name '%'
+    ...
+end
 rules <ruleName: Rule (CountRule or PatternRule)>
     state 'x' to 'y' if
         ; CountRule state
