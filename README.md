@@ -8,7 +8,7 @@ This program allows you to create cellular automata based on a given world file.
   - [Build](#build)
   - [Launch](#launch)
 - [World file syntax](#world-file-syntax)
-  - [As work may statement](#as-work-may-statements)
+  - [How work may statement](#how-work-may-statements)
 - [Json gui setting](#json-gui-setting)
 - [Modifying 'Game of life' rule](#modifying-game-of-life-rule)
 - [Implemented automata](#implemented-automata)
@@ -43,7 +43,7 @@ For toggle viewing iteration count need press key `F3`
 Words, numbers and symbols separated by spacing symbols (space, tab, new line and etc.), Tabulation and line feed it does not matter.  
 See the other syntax in the [EBNF](syntax/world.ebnf), [example file](syntax/example.txt) and [documentation](doc/statements.md).
 
-### As work may statements
+### How work may statements
 
 may statement in if block checking via `and`
 ```
