@@ -7,10 +7,14 @@
 #include "str_prefixs.hpp"
 
 std::set<std::string> keywords = {
-    "world", "alias", "rules", "setup", "end",             // important keywords
-    "state", "to", "if", "may", "nomay", "any", "set",     // secondary keywords
-    "cell", "linex", "liney", "rect", "pattern", "random"  // commands
+    "world", "alias", "rules", "setup", "end",                    // important keywords
+    "state", "to", "if", "may", "nomay", "any", "set",            // secondary keywords
+    "cell", "linex", "liney", "rect", "pattern", "random", "rle"  // commands
 };
+
+// ================================================================================
+// support for parse
+// ================================================================================
 
 Token pop(std::list<Token>& lst) {
     Token t = *lst.begin();
@@ -43,6 +47,23 @@ char extractMaybeAlias(const Token& token, const std::map<std::string, char>& al
         }
     }
 }
+
+void checkRLEPattern(const std::string& pattern, Location loc) {
+    std::string correctSymbols = "bo$!0123456789";
+    for (size_t i = 0; i < pattern.length(); i++, loc.column++) {
+        if (correctSymbols.find(pattern[i]) == std::string::npos) {
+            std::cerr << ErrorPrefix << loc << std::format("unknown character `{}` in the rle pattern\n", pattern[i]);
+            std::exit(1);
+        } else if (pattern[i] == '!' && i != pattern.length() - 1) {
+            std::cerr << ErrorPrefix << loc << "stop symbol `!` must be in the end of pattern\n";
+            std::exit(1);
+        }
+    }
+}
+
+// ================================================================================
+// main syntactic construction
+// ================================================================================
 
 GuiSetting parse::guiSet(const std::string& path) {
     using json = nlohmann::json;
@@ -207,7 +228,7 @@ void parse::stmt::rules(std::list<Token>& lst, World& world, const std::map<std:
 void parse::stmt::setup(std::list<Token>& lst, World* world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 2, "setup");
     pop(lst).mustBe(Token::Phrase, "setup");
-    const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random"};
+    const std::initializer_list<std::string> correctCmd = {"end", "cell", "linex", "liney", "rect", "pattern", "random", "rle"};
     Token commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
 
     void (*conCmd)(std::list<Token>&, ConsoleWorld&, const std::map<std::string, char>& aliases) = nullptr;
@@ -232,6 +253,9 @@ void parse::stmt::setup(std::list<Token>& lst, World* world, const std::map<std:
         } else if (commandTok.dataToStr() == "random") {
             conCmd = parse::cmd::random;
             guiCmd = parse::cmd::random;
+        } else if (commandTok.dataToStr() == "rle") {
+            conCmd = parse::cmd::rle;
+            guiCmd = parse::cmd::rle;
         }
 
         if (ConsoleWorld* wrld = dynamic_cast<ConsoleWorld*>(world))
@@ -247,6 +271,10 @@ void parse::stmt::setup(std::list<Token>& lst, World* world, const std::map<std:
         commandTok = pop(lst); commandTok.mustBe(Token::Phrase, correctCmd);
     }
 }
+
+// ================================================================================
+// states
+// ================================================================================
 
 std::unique_ptr<CountRule> parse::state::count(std::list<Token>& lst, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 5, "state");
@@ -334,6 +362,10 @@ std::unique_ptr<PatternRule> parse::state::pattern(std::list<Token>& lst, const 
     pop(lst).mustBe(Token::Phrase, "end");
     return std::make_unique<PatternRule>(beCh, afCh, pattern);
 }
+
+// ================================================================================
+// commands ConsoleWorld version
+// ================================================================================
 
 void parse::cmd::cell(std::list<Token> &lst, ConsoleWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "cell command");
@@ -505,6 +537,68 @@ void parse::cmd::random(std::list<Token> &lst, ConsoleWorld &world, const std::m
     }
 }
 
+void parse::cmd::rle(std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases) {
+    (void)aliases;
+    std::string alphabet = world.getAlphabet();
+    if (alphabet.length() < 2) {
+        std::cerr << ErrorPrefix << "for rle command need minimum 2 symbols in alphabet\n";
+        std::exit(1);
+    }
+
+    needTokenCount(lst, 3, "rle command");
+    Token xTok = pop(lst); xTok.mustBe(Token::Number);
+    Token yTok = pop(lst); yTok.mustBe(Token::Number);
+    Token pTok = pop(lst); pTok.mustBe(Token::Phrase);
+    
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+    checkRLEPattern(pTok.dataToStr(), pTok.loc);
+    std::string pattern = pTok.dataToStr();
+    size_t x0 = x;
+
+    std::string buffer;
+    auto extractQuantity = [&buffer]() -> size_t {
+        if (buffer.empty())
+            return 1;
+        size_t qua = std::stoull(buffer);
+        buffer.clear();
+        return qua;
+    };
+    for (char c : pattern) {
+        switch (c) {
+            case 'b': {
+                char deadCell = alphabet[0];
+                size_t qua = extractQuantity();
+                for (size_t i = 0; i < qua; i++) {
+                    world.getCell(x, y) = deadCell;
+                    world.getCell_FS(x, y) = deadCell;
+                    x++;
+                }
+            } break;
+            case 'o': {
+                char liveCell = alphabet[1];
+                size_t qua = extractQuantity();
+                for (size_t i = 0; i < qua; i++) {
+                    world.getCell(x, y) = liveCell;
+                    world.getCell_FS(x, y) = liveCell;
+                    x++;
+                }
+            } break;
+            case '$': {
+                y += extractQuantity();
+                x = x0;
+            } break;
+            default: {
+                if (std::isdigit(c)) buffer += c;
+            } break;
+        }
+    }
+}
+
+// ================================================================================
+// commands GuiWorld version
+// ================================================================================
+
 void parse::cmd::cell(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "cell command");
     Token chTok = pop(lst); chTok.mustBe({Token::Symbol, Token::Phrase});
@@ -671,6 +765,64 @@ void parse::cmd::random(std::list<Token> &lst, GuiWorld &world, const std::map<s
             char c = alphabet[rand() % alphabet.size()];
             world.setCell(c, tx, ty);
             world.setCell_FS(c, tx, ty);
+        }
+    }
+}
+
+void parse::cmd::rle(std::list<Token> &lst, GuiWorld &world, const std::map<std::string, char> &aliases) {
+    (void)aliases;
+    std::string alphabet = world.getAlphabet();
+    if (alphabet.length() < 2) {
+        std::cerr << ErrorPrefix << "for rle command need minimum 2 symbols in alphabet\n";
+        std::exit(1);
+    }
+
+    needTokenCount(lst, 3, "rle command");
+    Token xTok = pop(lst); xTok.mustBe(Token::Number);
+    Token yTok = pop(lst); yTok.mustBe(Token::Number);
+    Token pTok = pop(lst); pTok.mustBe(Token::Phrase);
+    
+    size_t x = world.compressInWidth(std::abs(std::get<int>(xTok.data)));
+    size_t y = world.compressInHeight(std::abs(std::get<int>(yTok.data)));
+    checkRLEPattern(pTok.dataToStr(), pTok.loc);
+    std::string pattern = pTok.dataToStr();
+    size_t x0 = x;
+
+    std::string buffer;
+    auto extractQuantity = [&buffer]() -> size_t {
+        if (buffer.empty())
+            return 1;
+        size_t qua = std::stoull(buffer);
+        buffer.clear();
+        return qua;
+    };
+    for (char c : pattern) {
+        switch (c) {
+            case 'b': {
+                char deadCell = alphabet[0];
+                size_t qua = extractQuantity();
+                for (size_t i = 0; i < qua; i++) {
+                    world.setCell(deadCell, x, y);
+                    world.setCell_FS(deadCell, x, y);
+                    x++;
+                }
+            } break;
+            case 'o': {
+                char liveCell = alphabet[1];
+                size_t qua = extractQuantity();
+                for (size_t i = 0; i < qua; i++) {
+                    world.setCell(liveCell, x, y);
+                    world.setCell_FS(liveCell, x, y);
+                    x++;
+                }
+            } break;
+            case '$': {
+                y += extractQuantity();
+                x = x0;
+            } break;
+            default: {
+                if (std::isdigit(c)) buffer += c;
+            } break;
         }
     }
 }

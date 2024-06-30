@@ -18,10 +18,8 @@ setup
     liney wire 76 11 19
 
     ; diod
-    pattern 35 9 2 3
-        wire wire
-        none wire
-        wire wire
+    ; example rle pattern
+    rle 35 9 2o$bo$2o!
 
     ; between wire
     liney wire 40 10 20

@@ -14,7 +14,7 @@ pattern_stmt =
 (symOralias|"any"),                     (symOralias|"any"),
 (symOralias|"any"), (symOralias|"any"), (symOralias|"any");
 
-command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd | random_cmd;
+command = cell_cmd | linex_cmd | liney_cmd | rect_cmd | pattern_cmd | random_cmd | rle_cmd;
 
 (*                   char        x       y *)
 cell_cmd  = "cell",  symOralias, number, number;
@@ -28,6 +28,8 @@ rect_cmd  = "rect",  symOralias, number, number, number, number;
 pattern_cmd = "pattern", number, number, number, number, (symOralias|"any"), {(symOralias|"any")};
 (*                     x       y       width   height *)
 random_cmd = "random", number, number, number, number;
+(*               x       y       pattern *)
+rle_cmd = "rle", number, number, phrase;
 
 symOralias = symbol | phrase;
 phrase = char, { char };

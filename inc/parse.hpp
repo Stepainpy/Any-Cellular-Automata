@@ -27,6 +27,7 @@ namespace parse {
         void rect   (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
         void pattern(std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
         void random (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
+        void rle    (std::list<Token>& lst, ConsoleWorld& world, const std::map<std::string, char>& aliases);
 
         void cell   (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
         void linex  (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
@@ -34,6 +35,7 @@ namespace parse {
         void rect   (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
         void pattern(std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
         void random (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
+        void rle    (std::list<Token>& lst, GuiWorld& world, const std::map<std::string, char>& aliases);
     }
     namespace state {
         std::unique_ptr<CountRule>   count  (std::list<Token>& lst, const std::map<std::string, char>& aliases);

@@ -29,4 +29,8 @@ setup
     ; in pattern maybe symbol or word 'any'. 'any' set "transparent" for pattern.
     ; it is used when it is necessary to save the cells of the world
     random <x: int> <y: int> <width: int> <height: int>
+    ; rle use first and second symbol from alphabet
+    ; b = first, o = second
+    ; example: rle 10 34 bo$2bo$3o!
+    rle <x: int> <y: int> <pattern: phrase>
 end

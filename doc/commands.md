@@ -108,3 +108,23 @@ Arguments
 | pattern-char... | `symbol`<br>`phrase` | quantity = width * height, maybe alias |
 
 `pattern-char` maybe as symbol, as keyword `any`. If paste `any`, then symbol in world not changed. Sequence read row by row
+
+## Rle
+
+Syntax
+```
+rle <x> <y> <pattern>
+```
+
+Arguments
+|  Name   |   Type   | Description                                                             |
+| :-----: | :------: | :---------------------------------------------------------------------- |
+|    x    | `number` | X position                                                              |
+|    y    | `number` | Y position                                                              |
+| pattern | `phrase` | pattern in format [RLE](https://conwaylife.com/wiki/Run_Length_Encoded) |
+
+command use first and second symbols from alphabet
+| &lt;tag&gt; | alphabet symbol |
+| :---------: | :-------------: |
+|      b      |      first      |
+|      o      |     second      |
