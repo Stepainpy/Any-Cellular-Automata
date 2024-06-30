@@ -17,7 +17,7 @@ void Lexer::skip() {
         inComment ||
         std::isspace(m_file.peek()) ||
         m_file.peek() == ';' ||
-        m_file.peek() == '$'
+        m_file.peek() == '\\'
     )) {
         char c = m_file.get();
         switch (c) {
@@ -34,7 +34,7 @@ void Lexer::skip() {
                 while (m_file.peek() != '\n')
                     c = m_file.get();
             } break;
-            case '$': {
+            case '\\': {
                 inComment = !inComment;
                 m_globalLoc.column++;
             } break;

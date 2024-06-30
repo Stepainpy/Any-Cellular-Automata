@@ -16,10 +16,10 @@ rules <ruleName: Rule (CountRule or PatternRule)>
     ...
 end
 setup
-    $ <- dollar symbol for multiline or inner comment
+    \ <- backslash for multiline or inner comment
     correct x may be 0..width-1
     correct y may be 0..height-1
-    $
+    \
 
     cell  '.' <x: int> <y: int>
     linex '.' <x0: int> <y: int> <x1: int>

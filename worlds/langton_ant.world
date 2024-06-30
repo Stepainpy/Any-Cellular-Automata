@@ -1,9 +1,9 @@
-$
+\
 This world special create for gui
 
 l,r,u,d - direction on white
 L,R,U,D - direction on black
-$
+\
 
 world 69 69 '.' 2 '.' '#'
 alias
@@ -22,25 +22,25 @@ rules PatternRule
     state 'U' to white if any any any any any any any any end
     state 'D' to white if any any any any any any any any end
 
-    $ to up $
+    \ to up \
     state white to 'u' if any any any any any any 'l' any end
     state white to 'u' if any any any any any any 'R' any end
     state black to 'U' if any any any any any any 'l' any end
     state black to 'U' if any any any any any any 'R' any end
 
-    $ to down $
+    \ to down \
     state white to 'd' if any 'r' any any any any any any end
     state white to 'd' if any 'L' any any any any any any end
     state black to 'D' if any 'r' any any any any any any end
     state black to 'D' if any 'L' any any any any any any end
 
-    $ to left $
+    \ to left \
     state white to 'l' if any any any any 'U' any any any end
     state white to 'l' if any any any any 'd' any any any end
     state black to 'L' if any any any any 'U' any any any end
     state black to 'L' if any any any any 'd' any any any end
 
-    $ to right $
+    \ to right \
     state white to 'r' if any any any 'u' any any any any end
     state white to 'r' if any any any 'D' any any any any end
     state black to 'R' if any any any 'u' any any any any end
