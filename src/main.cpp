@@ -22,34 +22,39 @@ void useConsole(ConsoleWorld& world) {
 
     auto begin = std::chrono::high_resolution_clock::now();
     auto end   = std::chrono::high_resolution_clock::now();
+    std::chrono::milliseconds delay = 20ms, fastDelay = 2ms;
+    size_t iterations = 0;
     bool viewIter = false;
+    bool pauseSim = false;
 
-    auto tracker = std::async(std::launch::async, [&viewIter]() {
+    auto keyHandler = std::async(std::launch::async, [&]() {
         while (true) {
             int c = getch();
-            if (c == ESC_ASCII)
-                break;
-            else if (c == 0) {
-                int c2 = getch();
-                if (c2 == GETCH_KEY_F3)
-                    viewIter = !viewIter;
+            if (c == ESC_ASCII) break;                       // Esc   = exit from app
+            else if (c == ' ') pauseSim = !pauseSim;         // Space = pause simulation
+            else if (c == 'b') std::swap(delay, fastDelay);  // b     = toggle simulation speed
+            else if (c == 'i') viewIter = !viewIter;         // i     = view count of iterations
+            else if (c == 'n' && pauseSim) {                 // n     = next step (if now is pause)
+                world.update();
+                iterations++;
             }
         }
     });
-    bool run = true;
-    while (run) {
+
+    while (keyHandler.wait_for(0s) != std::future_status::ready) {
         begin = std::chrono::high_resolution_clock::now();
-        world.display(viewIter);
-        world.update();
-        end   = std::chrono::high_resolution_clock::now();
-        
-        // exit from app
-        run = !(tracker.wait_for(0s) == std::future_status::ready);
+        world.display();
+        if (viewIter)
+            std::cout << "\r(Esc - exit) Iter count: " << iterations;
+        if (!pauseSim) {
+            world.update();
+            iterations++;
+        }
+        end = std::chrono::high_resolution_clock::now();
 
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-        if (dur.count() > 20)
-            continue;
-        std::this_thread::sleep_for(20ms - dur);  // 50 FPS
+        if (dur.count() < delay.count())
+            std::this_thread::sleep_for(delay - dur);  // 50 or 500 FPS
     }
 
     std::cout
@@ -58,20 +63,41 @@ void useConsole(ConsoleWorld& world) {
 
 void useGui(GuiWorld& world) {
     auto [width, height] = world.getWindowSize();
-    InitWindow(width, height, "ACA");
-    SetTargetFPS(50);
-
+    size_t iterations = 0;
     bool viewIter = false;
+    bool pauseSim = false;
+    int fps = 50, fastFps = 500;
+
+    InitWindow(width, height, "ACA");
+    SetTargetFPS(fps);
+
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_F3))
+        if (IsKeyPressed(KEY_B)) {
+            std::swap(fps, fastFps);
+            SetTargetFPS(fps);
+        }
+        if (IsKeyPressed(KEY_N) && pauseSim) {
+            world.update();
+            iterations++;
+        }
+        if (IsKeyPressed(KEY_SPACE))
+            pauseSim = !pauseSim;
+        if (IsKeyPressed(KEY_I))
             viewIter = !viewIter;
 
         BeginDrawing();
         ClearBackground(BLACK);
-        world.display(viewIter);
+
+        world.display();
+        if (viewIter)
+            DrawText(TextFormat("Iter count: %u", iterations), 3, 3, 20, GREEN);
+
         EndDrawing();
 
-        world.update();
+        if (!pauseSim) {
+            world.update();
+            iterations++;
+        }
     }
 
     CloseWindow();
@@ -83,6 +109,11 @@ int main(int argc, char** argv) {
         std::cerr << ErrorPrefix << "Must be specificate one (world file path) or two (world file and gui setting json) argument\n";
         std::cerr << "[Usage]: ./aca <world file> [<guis setting json>]\n";
         return 1;
+    }
+
+    if (std::string(argv[1]) == "help") {
+        std::cout << "[Usage]: ./aca <world file> [<guis setting json>]\n";
+        return 0;
     }
 
     Lexer lexer(argv[1]);

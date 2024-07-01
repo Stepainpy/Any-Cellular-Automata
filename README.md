@@ -7,6 +7,7 @@ This program allows you to create cellular automata based on a given world file.
 - [Quick start](#quick-start)
   - [Build](#build)
   - [Launch](#launch)
+  - [Key map](#key-map)
 - [World file syntax](#world-file-syntax)
   - [How work may statement](#how-work-may-statements)
 - [Json gui setting](#json-gui-setting)
@@ -36,7 +37,15 @@ As graphich app (use [Raylib](https://github.com/raysan5/raylib))
 ./aca worlds/gol.world worlds/gui/gol.json
 ```
 
-For toggle viewing iteration count need press key `F3`
+### Key map
+
+|       Key        | Action                                                   |
+| :--------------: | :------------------------------------------------------- |
+|  <kbd>Esc</kbd>  | exit from application                                    |
+| <kbd>Space</kbd> | toggle pause                                             |
+|   <kbd>I</kbd>   | toggle viewing count of iterations                       |
+|   <kbd>B</kbd>   | toggle speed <br> 50 FPS <-> 500 FPS <br> 20 ms <-> 2 ms |
+|   <kbd>N</kbd>   | step in simulation if set pause                          |
 
 ## World file syntax
 

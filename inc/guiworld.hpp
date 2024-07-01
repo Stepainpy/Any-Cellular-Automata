@@ -15,7 +15,7 @@
 class GuiWorld : public World {
 public:
     void update();
-    void display(bool viewIters) const;
+    void display() const;
 
     char getCell(size_t x, size_t y);
     char getCell(size_t i);

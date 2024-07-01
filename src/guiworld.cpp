@@ -82,8 +82,7 @@ void GuiWorld::update() {
     );
 }
 
-void GuiWorld::display(bool viewIter) const {
-    static size_t i = 0;
+void GuiWorld::display() const {
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
             DrawRectangle(
@@ -95,9 +94,6 @@ void GuiWorld::display(bool viewIter) const {
             );
         }
     }
-    std::string message = std::format("Iter count: {}", i++);
-    if (viewIter)
-        DrawText(message.c_str(), 3, 3, 20, GREEN);
 }
 
 void GuiWorld::addRule(std::unique_ptr<Rule> rule) {

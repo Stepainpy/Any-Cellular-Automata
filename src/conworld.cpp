@@ -62,13 +62,9 @@ void ConsoleWorld::update() {
     m_world = m_farSideWorld;
 }
 
-void ConsoleWorld::display(bool viewIter) const {
-    static size_t i = 0;
+void ConsoleWorld::display() const {
     // return to start pos (left top) and display world
     std::cout << "\e[H" << m_world;
-    if (viewIter)
-        std::cout << "\r(Esc - exit) Iter count: " << i;
-    i++;
 }
 
 void ConsoleWorld::addRule(std::unique_ptr<Rule> rule) {
