@@ -1,7 +1,7 @@
 ; This world is for demonstrating the possibilities
 world 80 30 '.' 2 '.' '#'
 alias end
-rules CountRule end
+rules count end
 setup
     rect '#' 30 15 2 2
     pattern 28 13 6 6

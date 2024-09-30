@@ -96,7 +96,7 @@ world 80 30 '.' 2
 '.' ; dead
 '#' ; live
 alias end
-rules CountRule
+rules count
     state '.' to '#' if '#' may
         ; numbers in 'B'
     end

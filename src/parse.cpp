@@ -209,16 +209,16 @@ std::map<std::string, char> parse::stmt::alias(std::list<Token>& lst) {
 void parse::stmt::rules(std::list<Token>& lst, World& world, const std::map<std::string, char>& aliases) {
     needTokenCount(lst, 3, "rules");
     pop(lst).mustBe(Token::Phrase, "rules");
-    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"CountRule", "PatternRule"});
+    Token ruleName  = pop(lst);  ruleName.mustBe(Token::Phrase, {"count", "pattern"});
     Token ruleBlock = pop(lst); ruleBlock.mustBe(Token::Phrase, {"state", "end"});
     std::string ruleNameStr = ruleName.dataToStr();
 
     if (ruleBlock.dataToStr() != "end") {
         lst.push_front(ruleBlock);
         do {
-            if (ruleNameStr == "CountRule")
+            if (ruleNameStr == "count")
                 world.addRule(parse::state::count(lst, aliases));
-            else if (ruleNameStr == "PatternRule")
+            else if (ruleNameStr == "pattern")
                 world.addRule(parse::state::pattern(lst, aliases));
         } while (needTokenCount(lst, 1, "rules") && (*lst.begin()).dataToStr() != "end");
         (void)pop(lst);  // drop 'end' of rules

@@ -3,14 +3,14 @@ alias
     set name '%'
     ...
 end
-rules <ruleName: Rule (CountRule or PatternRule)>
+rules <ruleName: count or pattern>
     state 'x' to 'y' if
-        ; CountRule state
+        ; count state
         'a' may 1 2 ...
         'b' nomay 3 5 ...  ; equal "may 0 1 2 4 6 7 8"
         ...
 
-        ; PatternRule state
+        ; pattern state
         '.' ',' any '.' any any ',' any  ; respectively equal NW N NE W E SW S SE cells
     end
     ...

@@ -3,7 +3,7 @@ complete_world = world_stmt, alias_stmt, rules_stmt, setup_stmt;
 (*                    width   height  fill    alsize  alchars ...*)
 world_stmt = "world", number, number, symbol, number, symbol, {symbol};
 alias_stmt = "alias", { set_stmt }, end;
-rules_stmt = "rules", ("CountRule"|"PatternRule"), { state_stmt }, "end";
+rules_stmt = "rules", ("count"|"pattern"), { state_stmt }, "end";
 setup_stmt = "setup", {command}, "end";
 
 set_stmt = "set", phrase, symbol;

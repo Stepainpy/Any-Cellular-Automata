@@ -1,6 +1,6 @@
 world 80 30 '.' 3 '.' ' ' '#'
 alias end
-rules CountRule
+rules count
     state '.' to '#' if '#' may 3 end
     state ' ' to '#' if '#' may 3 end
     state '#' to ' ' if '#' nomay 2 3 end

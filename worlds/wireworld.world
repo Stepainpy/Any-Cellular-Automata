@@ -5,7 +5,7 @@ alias
     set head '@'
     set tail '-'
 end
-rules CountRule
+rules count
     state wire to head if head may 1 2 end ; if 1 or 2 head => wire -> head
     state head to tail if none nomay   end ; always            head -> tail
     state tail to wire if none nomay   end ; always            tail -> wire

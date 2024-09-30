@@ -1,8 +1,8 @@
 world 80 30 ' ' 1 ' '
 ; the alphabet is important only for the correct
-; work of "CountRule" and the "random" function
+; work of "count" and the "random" function
 alias end
-rules PatternRule
+rules pattern
     ; > righter
     state '>' to ' ' if any any any any ' ' any any any end
     state ' ' to '>' if any any any '>' any any any any end

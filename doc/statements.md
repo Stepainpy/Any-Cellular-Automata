@@ -63,19 +63,19 @@ end
 Argument
 |   Name    |   Type   | Description                                        |
 | :-------: | :------: | :------------------------------------------------- |
-| rule-name | `phrase` | used rule type, maybe `CountRule` or `PatternRule` |
+| rule-name | `phrase` | used rule type, maybe `count` or `pattern` |
 
 ## State statement
 
 Syntax  
-`CountRule`
+`count`
 ```
 state <before-char> to <after-char> if
     <may statement>
     ...
 end
 ```
-`PatternRule`
+`pattern`
 ```
 state <before-char> to <after-char> if <pattern statement> end
 ```

@@ -10,7 +10,7 @@ alias
     set white '.'
     set black '#'
 end
-rules PatternRule
+rules pattern
     ; delete previos ant
     state 'l' to black if any any any any any any any any end
     state 'r' to black if any any any any any any any any end

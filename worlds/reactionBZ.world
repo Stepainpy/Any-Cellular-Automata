@@ -2,7 +2,7 @@
 ; wikipedia: https://en.wikipedia.org/wiki/Belousov–Zhabotinsky_reaction
 world 80 30 '.' 3 '.' '*' '@'
 alias end
-rules CountRule
+rules count
     state '.' to '*' if '*' may 3 4 end
     state '*' to '@' if '@' may 3 4 end
     state '@' to '.' if '.' may 3 4 end
