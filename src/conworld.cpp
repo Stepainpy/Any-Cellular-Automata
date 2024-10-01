@@ -64,7 +64,7 @@ void ConsoleWorld::update() {
 
 void ConsoleWorld::display() const {
     // return to start pos (left top) and display world
-    std::cout << "\e[H" << m_world;
+    std::cout << "\x1b[H" << m_world;
 }
 
 void ConsoleWorld::addRule(std::unique_ptr<Rule> rule) {

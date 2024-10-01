@@ -17,8 +17,8 @@ using namespace std::chrono_literals;
 
 void useConsole(ConsoleWorld& world) {
     std::cout
-    << "\e[H\e[2J"  // clear screen
-    << "\e[?25l";   // set cursor invisible
+    << "\x1b[H\x1b[2J"  // clear screen
+    << "\x1b[?25l";   // set cursor invisible
 
     auto begin = std::chrono::high_resolution_clock::now();
     auto end   = std::chrono::high_resolution_clock::now();
@@ -58,7 +58,7 @@ void useConsole(ConsoleWorld& world) {
     }
 
     std::cout
-    << "\e[?25h";  // set cursor visible
+    << "\x1b[?25h";  // set cursor visible
 }
 
 void useGui(GuiWorld& world) {
